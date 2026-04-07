@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Producto extends Model
 {
@@ -68,5 +69,10 @@ class Producto extends Model
     public function productor(): BelongsTo
     {
         return $this->belongsTo(Producer::class, 'productor_id');
+    }
+
+    public function eventosProduccion(): HasMany
+    {
+        return $this->hasMany(EventoProduccion::class, 'producto_id');
     }
 }

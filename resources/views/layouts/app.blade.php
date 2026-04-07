@@ -26,6 +26,9 @@
                     <a class="nav-link d-flex align-items-center gap-1 px-3 py-2 rounded {{ request()->routeIs('productos.*') ? 'active bg-white bg-opacity-25' : '' }}" href="{{ route('productos.index') }}">
                         <i class="bi bi-flower1"></i> Productos agrícolas
                     </a>
+                    <a class="nav-link d-flex align-items-center gap-1 px-3 py-2 rounded {{ request()->routeIs('eventos-produccion.*') ? 'active bg-white bg-opacity-25' : '' }}" href="{{ route('eventos-produccion.index') }}">
+                        <i class="bi bi-calendar2-week"></i> Proceso productivo
+                    </a>
                 </div>
             </div>
         </div>
