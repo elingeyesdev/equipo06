@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Producer extends Model
 {
@@ -17,4 +18,9 @@ class Producer extends Model
         'address',
         'is_active',
     ];
+
+    public function productos(): HasMany
+    {
+        return $this->hasMany(Producto::class, 'productor_id');
+    }
 }

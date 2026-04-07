@@ -17,7 +17,10 @@ class ProducerController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('productores.index', compact('producers'));
+        $total = Producer::query()->count();
+        $activos = Producer::query()->where('is_active', true)->count();
+
+        return view('productores.index', compact('producers', 'total', 'activos'));
     }
 
     /**
@@ -25,7 +28,9 @@ class ProducerController extends Controller
      */
     public function create()
     {
-        return view('productores.create');
+        $producer = new Producer;
+
+        return view('productores.create', compact('producer'));
     }
 
     /**
