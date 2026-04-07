@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Producto extends Model
@@ -74,5 +75,10 @@ class Producto extends Model
     public function eventosProduccion(): HasMany
     {
         return $this->hasMany(EventoProduccion::class, 'producto_id');
+    }
+
+    public function lotes(): BelongsToMany
+    {
+        return $this->belongsToMany(Lote::class, 'lote_producto', 'producto_id', 'lote_id');
     }
 }

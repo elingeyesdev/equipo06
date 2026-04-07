@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\EventoProduccionController;
+use App\Http\Controllers\LoteController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProducerController;
 use Illuminate\Support\Facades\Route;
@@ -22,3 +23,8 @@ Route::get('/eventos-produccion/{evento_produccion}/edit', [EventoProduccionCont
 Route::put('/eventos-produccion/{evento_produccion}', [EventoProduccionController::class, 'update'])->name('eventos-produccion.update');
 Route::post('/eventos-produccion/{evento_produccion}/completar', [EventoProduccionController::class, 'completar'])->name('eventos-produccion.completar');
 Route::delete('/eventos-produccion/{evento_produccion}', [EventoProduccionController::class, 'destroy'])->name('eventos-produccion.destroy');
+
+Route::get('/lotes', [LoteController::class, 'index'])->name('lotes.index');
+Route::get('/lotes/create', [LoteController::class, 'create'])->name('lotes.create');
+Route::post('/lotes', [LoteController::class, 'store'])->name('lotes.store');
+Route::get('/lotes/{lote}', [LoteController::class, 'show'])->name('lotes.show');
