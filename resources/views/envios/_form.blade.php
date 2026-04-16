@@ -65,3 +65,7 @@
         @error('observaciones')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
 </div>
+
+@if (isset($productos))
+    @include('envios._form_productos', ['cantidadesPrevias' => $cantidadesPrevias ?? []])
+@endif

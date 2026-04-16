@@ -81,4 +81,9 @@ class Producto extends Model
     {
         return $this->belongsToMany(Lote::class, 'lote_producto', 'producto_id', 'lote_id');
     }
+
+    public function detallesEnvio(): HasMany
+    {
+        return $this->hasMany(DetalleEnvio::class, 'producto_id');
+    }
 }

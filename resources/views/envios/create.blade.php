@@ -21,7 +21,7 @@
         <h1 class="h3 mb-2 d-flex align-items-center gap-2">
             <span aria-hidden="true">🚚</span> Registrar envío
         </h1>
-        <p class="text-muted mb-0">Define origen, destino y fechas. El código de seguimiento se asigna al guardar.</p>
+        <p class="text-muted mb-0">Define origen, destino, fechas y las cantidades por producto. El código de guía se asigna al guardar.</p>
     </div>
 
     <div class="card shadow-sm border-0">
