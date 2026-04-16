@@ -1,9 +1,10 @@
 <?php
 
+use App\Http\Controllers\EnvioController;
 use App\Http\Controllers\EventoProduccionController;
 use App\Http\Controllers\LoteController;
-use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProducerController;
+use App\Http\Controllers\ProductoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ProducerController::class, 'index']);
@@ -28,3 +29,7 @@ Route::get('/lotes', [LoteController::class, 'index'])->name('lotes.index');
 Route::get('/lotes/create', [LoteController::class, 'create'])->name('lotes.create');
 Route::post('/lotes', [LoteController::class, 'store'])->name('lotes.store');
 Route::get('/lotes/{lote}', [LoteController::class, 'show'])->name('lotes.show');
+
+Route::resource('envios', EnvioController::class)->parameters([
+    'envios' => 'envio',
+]);

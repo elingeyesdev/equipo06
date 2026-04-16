@@ -13,7 +13,7 @@
         <div class="container">
             <a class="navbar-brand fw-semibold d-flex align-items-center gap-2" href="{{ route('productores.index') }}">
                 <i class="bi bi-diagram-3 fs-5"></i>
-                <span>Sistema de Trazabilidad - Sprint 0</span>
+                <span>Sistema de Trazabilidad - Sprint 1</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Menú">
                 <span class="navbar-toggler-icon"></span>
@@ -31,6 +31,9 @@
                     </a>
                     <a class="nav-link d-flex align-items-center gap-1 px-3 py-2 rounded {{ request()->routeIs('lotes.*') ? 'active bg-white bg-opacity-25' : '' }}" href="{{ route('lotes.index') }}">
                         <i class="bi bi-box-seam"></i> Lotes
+                    </a>
+                    <a class="nav-link d-flex align-items-center gap-1 px-3 py-2 rounded {{ request()->routeIs('envios.*') ? 'active bg-white bg-opacity-25' : '' }}" href="{{ route('envios.index') }}">
+                        <i class="bi bi-truck"></i> Envíos
                     </a>
                 </div>
             </div>
