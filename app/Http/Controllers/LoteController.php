@@ -49,6 +49,7 @@ class LoteController extends Controller
     public function store(Request $request)
     {
         $tiposKeys = array_keys(Producto::tiposDisponibles());
+        $estadosKeys = array_keys(Lote::estadosDisponibles());
 
         $validated = $request->validate([
             'productor_id' => ['required', 'integer', 'exists:producers,id'],
@@ -57,6 +58,7 @@ class LoteController extends Controller
             'descripcion' => ['nullable', 'string', 'max:5000'],
             'cantidad' => ['required', 'numeric', 'min:0.001'],
             'tipo_producto' => ['required', 'string', Rule::in($tiposKeys)],
+            'estado' => ['required', 'string', Rule::in($estadosKeys)],
             'productos' => ['required', 'array', 'min:1'],
             'productos.*' => ['integer', 'distinct', 'exists:productos,id'],
         ], [], [
@@ -66,6 +68,7 @@ class LoteController extends Controller
             'descripcion' => 'descripción',
             'cantidad' => 'cantidad',
             'tipo_producto' => 'tipo de producto',
+            'estado' => 'estado',
             'productos' => 'productos',
         ]);
 
@@ -78,34 +81,15 @@ class LoteController extends Controller
             ->values()
             ->all();
 
-        $productos = Producto::query()
-            ->whereIn('id', $productoIds)
-            ->with('productor')
-            ->get();
+        $error = $this->validarProductosParaLote(
+            $productoIds,
+            (int) $validated['productor_id'],
+            $validated['tipo_producto'],
+            null
+        );
 
-        if ($productos->count() !== count($productoIds)) {
-            return back()
-                ->withInput()
-                ->withErrors(['productos' => 'No se encontraron todos los productos seleccionados.']);
-        }
-
-        $pid = (int) $validated['productor_id'];
-        foreach ($productos as $p) {
-            if ((int) $p->productor_id !== $pid) {
-                return back()
-                    ->withInput()
-                    ->withErrors(['productos' => 'Todos los productos deben pertenecer al mismo productor del lote.']);
-            }
-            if ($p->lote_id !== null) {
-                return back()
-                    ->withInput()
-                    ->withErrors(['productos' => 'Uno o más productos ya están asignados a otro lote.']);
-            }
-            if (! $p->activo) {
-                return back()
-                    ->withInput()
-                    ->withErrors(['productos' => 'Solo se pueden incluir productos activos.']);
-            }
+        if ($error !== null) {
+            return back()->withInput()->withErrors(['productos' => $error]);
         }
 
         $lote = DB::transaction(function () use ($validated, $productoIds) {
@@ -119,7 +103,7 @@ class LoteController extends Controller
                 'descripcion' => $validated['descripcion'],
                 'cantidad' => $validated['cantidad'],
                 'tipo_producto' => $validated['tipo_producto'],
-                'estado' => 'activo',
+                'estado' => $validated['estado'],
             ]);
 
             Producto::query()
@@ -142,5 +126,42 @@ class LoteController extends Controller
         ]);
 
         return view('lotes.show', compact('lote'));
+    }
+
+    /**
+     * @param  array<int, int>  $productoIds
+     */
+    private function validarProductosParaLote(
+        array $productoIds,
+        int $productorId,
+        string $tipoProducto,
+        ?int $loteIdPermitido
+    ): ?string {
+        $ids = collect($productoIds)->map(fn ($id) => (int) $id)->unique()->values()->all();
+        if ($ids === []) {
+            return 'Debe seleccionar al menos un producto.';
+        }
+
+        $productos = Producto::query()->whereIn('id', $ids)->get();
+        if ($productos->count() !== count($ids)) {
+            return 'No se encontraron todos los productos seleccionados.';
+        }
+
+        foreach ($productos as $p) {
+            if ((int) $p->productor_id !== $productorId) {
+                return 'Todos los productos deben pertenecer al mismo productor del lote.';
+            }
+            if ($p->lote_id !== null && ($loteIdPermitido === null || (int) $p->lote_id !== (int) $loteIdPermitido)) {
+                return 'Uno o más productos ya están asignados a otro lote.';
+            }
+            if (! $p->activo) {
+                return 'Solo se pueden incluir productos activos.';
+            }
+            if ($p->tipo !== $tipoProducto) {
+                return 'El tipo de cada producto debe coincidir con el tipo de producto del lote.';
+            }
+        }
+
+        return null;
     }
 }
