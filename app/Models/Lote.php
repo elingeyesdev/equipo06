@@ -42,6 +42,8 @@ class Lote extends Model
     {
         return [
             'activo' => 'Activo',
+            'cerrado' => 'Cerrado',
+            'anulado' => 'Anulado',
         ];
     }
 
@@ -54,8 +56,24 @@ class Lote extends Model
     {
         return match ($this->estado) {
             'activo' => 'text-bg-success',
+            'cerrado' => 'text-bg-secondary',
+            'anulado' => 'text-bg-danger',
             default => 'text-bg-light text-dark border',
         };
+    }
+
+    /**
+     * Título legible para listados (ej. código + tipo + fecha + productor).
+     */
+    public function tituloLinea(): string
+    {
+        $tipo = $this->etiquetaTipoProducto();
+        $fecha = $this->fecha_cosecha?->format('d/m/Y') ?? '—';
+        $prod = $this->relationLoaded('productor')
+            ? ($this->productor?->full_name ?? '—')
+            : ($this->productor()->value('full_name') ?? '—');
+
+        return $this->codigo_lote.' - '.$tipo.' - '.$fecha.' - '.$prod;
     }
 
     public function etiquetaTipoProducto(): string
