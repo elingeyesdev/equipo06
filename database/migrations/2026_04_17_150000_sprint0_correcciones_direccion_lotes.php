@@ -99,11 +99,18 @@ return new class extends Migration
             });
         }
 
-        $sm = DB::selectOne("SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name='lotes' AND name LIKE '%codigo%'");
-        if ($sm === null) {
-            Schema::table('lotes', function (Blueprint $table) {
-                $table->unique('codigo_lote');
-            });
+        // codigo_lote ya es unique en create_lotes (SQLite: sqlite_autoindex_lotes_1).
+        // Solo añadir índice con nombre explícito si por algún motivo no existe unique en esa columna.
+        if (Schema::hasTable('lotes')) {
+            $hasUniqueCodigo = collect(Schema::getIndexes('lotes'))
+                ->contains(fn (array $index) => ($index['unique'] ?? false)
+                    && in_array('codigo_lote', $index['columns'] ?? [], true));
+
+            if (! $hasUniqueCodigo) {
+                Schema::table('lotes', function (Blueprint $table) {
+                    $table->unique('codigo_lote', 'lotes_codigo_lote_unique');
+                });
+            }
         }
     }
 
@@ -123,6 +130,10 @@ return new class extends Migration
 
         if (Schema::hasColumn('lotes', 'productor_id')) {
             Schema::table('lotes', function (Blueprint $table) {
+                try {
+                    $table->dropUnique('lotes_codigo_lote_unique');
+                } catch (Throwable) {
+                }
                 try {
                     $table->dropUnique(['codigo_lote']);
                 } catch (Throwable) {
