@@ -128,6 +128,110 @@ class LoteController extends Controller
         return view('lotes.show', compact('lote'));
     }
 
+    public function edit(Lote $lote)
+    {
+        $lote->load([
+            'productos' => fn ($q) => $q->orderBy('nombre'),
+        ]);
+
+        $productores = Producer::query()
+            ->where('is_active', true)
+            ->orderBy('full_name')
+            ->get();
+
+        $productos = Producto::query()
+            ->where('activo', true)
+            ->where(function ($q) use ($lote) {
+                $q->whereNull('lote_id')->orWhere('lote_id', $lote->id);
+            })
+            ->with('productor')
+            ->orderBy('nombre')
+            ->get();
+
+        $tiposProducto = Producto::tiposDisponibles();
+
+        return view('lotes.edit', compact('lote', 'productores', 'productos', 'tiposProducto'));
+    }
+
+    public function update(Request $request, Lote $lote)
+    {
+        $tiposKeys = array_keys(Producto::tiposDisponibles());
+        $estadosKeys = array_keys(Lote::estadosDisponibles());
+
+        $validated = $request->validate([
+            'productor_id' => ['required', 'integer', 'exists:producers,id'],
+            'fecha_cosecha' => ['required', 'date'],
+            'nombre_lote' => ['nullable', 'string', 'max:120'],
+            'descripcion' => ['nullable', 'string', 'max:5000'],
+            'cantidad' => ['required', 'numeric', 'min:0.001'],
+            'tipo_producto' => ['required', 'string', Rule::in($tiposKeys)],
+            'estado' => ['required', 'string', Rule::in($estadosKeys)],
+            'productos' => ['required', 'array', 'min:1'],
+            'productos.*' => ['integer', 'distinct', 'exists:productos,id'],
+        ], [], [
+            'productor_id' => 'productor',
+            'fecha_cosecha' => 'fecha de cosecha',
+            'nombre_lote' => 'nombre del lote',
+            'descripcion' => 'descripción',
+            'cantidad' => 'cantidad',
+            'tipo_producto' => 'tipo de producto',
+            'estado' => 'estado',
+            'productos' => 'productos',
+        ]);
+
+        $validated['nombre_lote'] = $request->filled('nombre_lote') ? trim($request->input('nombre_lote')) : null;
+        $validated['descripcion'] = $request->filled('descripcion') ? trim($request->input('descripcion')) : null;
+
+        $productoIds = collect($validated['productos'])
+            ->map(fn (int|string $id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        $error = $this->validarProductosParaLote(
+            $productoIds,
+            (int) $validated['productor_id'],
+            $validated['tipo_producto'],
+            $lote->id
+        );
+
+        if ($error !== null) {
+            return back()->withInput()->withErrors(['productos' => $error]);
+        }
+
+        DB::transaction(function () use ($lote, $validated, $productoIds) {
+            Producto::query()->where('lote_id', $lote->id)->update(['lote_id' => null]);
+
+            $lote->update([
+                'nombre_lote' => $validated['nombre_lote'],
+                'fecha_cosecha' => $validated['fecha_cosecha'],
+                'productor_id' => $validated['productor_id'],
+                'descripcion' => $validated['descripcion'],
+                'cantidad' => $validated['cantidad'],
+                'tipo_producto' => $validated['tipo_producto'],
+                'estado' => $validated['estado'],
+            ]);
+
+            Producto::query()
+                ->whereIn('id', $productoIds)
+                ->update(['lote_id' => $lote->id]);
+        });
+
+        return redirect()
+            ->route('lotes.show', $lote)
+            ->with('status', 'Lote '.$lote->codigo_lote.' actualizado correctamente.');
+    }
+
+    public function destroy(Lote $lote)
+    {
+        $codigo = $lote->codigo_lote;
+        $lote->delete();
+
+        return redirect()
+            ->route('lotes.index')
+            ->with('status', 'Lote '.$codigo.' eliminado. Los productos quedaron sin lote.');
+    }
+
     /**
      * @param  array<int, int>  $productoIds
      */
