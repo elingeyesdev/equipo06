@@ -88,6 +88,14 @@ class Envio extends Model
     }
 
     /**
+     * Puntos geográficos de ruta / seguimiento asociados al envío (ENT 2.2).
+     */
+    public function ubicaciones(): HasMany
+    {
+        return $this->hasMany(Ubicacion::class, 'envio_id');
+    }
+
+    /**
      * Vista previa del siguiente código de guía (sin bloqueo). Formato: GUIA-2026-0001
      */
     public static function previewSiguienteCodigoGuia(): string
