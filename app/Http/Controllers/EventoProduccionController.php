@@ -11,19 +11,25 @@ class EventoProduccionController extends Controller
 {
     public function index()
     {
-        $eventos = EventoProduccion::query()
-            ->with('producto')
-            ->orderByDesc('fecha')
-            ->orderByDesc('id')
-            ->paginate(12);
-
         $total = EventoProduccion::query()->count();
         $completados = EventoProduccion::contarCompletados();
         $enProceso = EventoProduccion::contarEnProcesoEfectivo();
         $pendientes = EventoProduccion::contarPendientesEfectivo();
 
+        $eventosPorEtapa = collect(['siembra', 'cultivo', 'cosecha'])->mapWithKeys(function (string $etapa) {
+            return [
+                $etapa => EventoProduccion::query()
+                    ->where('etapa', $etapa)
+                    ->with(['producto.productor'])
+                    ->orderByDesc('fecha')
+                    ->orderByDesc('id')
+                    ->limit(30)
+                    ->get(),
+            ];
+        });
+
         $timelineEventos = EventoProduccion::query()
-            ->with('producto')
+            ->with(['producto.productor'])
             ->orderByDesc('fecha')
             ->orderByDesc('id')
             ->limit(35)
@@ -34,11 +40,11 @@ class EventoProduccionController extends Controller
             ->values();
 
         return view('eventos-produccion.index', compact(
-            'eventos',
             'total',
             'completados',
             'enProceso',
             'pendientes',
+            'eventosPorEtapa',
             'timelineEventos'
         ));
     }

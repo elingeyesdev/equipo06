@@ -104,9 +104,8 @@
                 <table class="table table-hover table-producers mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th class="ps-4">ID</th>
-                            <th>Nombre</th>
-                            <th>Documento</th>
+                            <th class="ps-4">Nombre</th>
+                            <th>Carnet de identidad</th>
                             <th>Teléfono</th>
                             <th>Correo</th>
                             <th>Estado</th>
@@ -116,8 +115,7 @@
                     <tbody>
                         @forelse ($producers as $producer)
                             <tr>
-                                <td class="ps-4 text-muted">{{ $producer->id }}</td>
-                                <td class="fw-semibold">{{ $producer->full_name }}</td>
+                                <td class="ps-4 fw-semibold">{{ $producer->full_name }}</td>
                                 <td>
                                     @if($producer->document_number)
                                         <span class="font-monospace small">{{ $producer->document_number }}</span>
@@ -158,7 +156,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-5">
+                                <td colspan="6" class="text-center py-5">
                                     <div class="text-muted mb-2 fs-1" aria-hidden="true">👥</div>
                                     <p class="mb-1 fw-semibold text-secondary">Aún no hay productores registrados</p>
                                     <p class="small text-muted mb-3">Empieza por dar de alta al primer productor; luego podrás asignarle productos agrícolas.</p>

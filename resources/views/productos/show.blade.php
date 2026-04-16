@@ -54,6 +54,25 @@
                 </div>
             </div>
         </div>
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h2 class="h6 text-uppercase text-muted mb-3">Lote de empaquetación</h2>
+                    @if ($producto->lote)
+                        <p class="mb-1 fw-semibold">
+                            <span class="font-monospace text-success">{{ $producto->lote->codigo_lote }}</span>
+                            @if ($producto->lote->nombre_lote)
+                                <span class="text-muted"> — {{ $producto->lote->nombre_lote }}</span>
+                            @endif
+                        </p>
+                        <p class="small text-muted mb-2">Cosecha: {{ $producto->lote->fecha_cosecha?->format('d/m/Y') ?? '—' }}</p>
+                        <a href="{{ route('lotes.show', $producto->lote) }}" class="small">Ver lote →</a>
+                    @else
+                        <p class="text-muted fst-italic mb-0">Este producto aún no está asignado a un lote.</p>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="mt-4 d-flex flex-wrap gap-2">

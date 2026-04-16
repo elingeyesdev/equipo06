@@ -27,7 +27,7 @@
     <div class="card shadow-sm border-0">
         <div class="card-body p-4 p-lg-5">
             <form action="{{ route('productores.store') }}" method="POST">
-                @include('productores._form')
+                @include('productores._form', ['tiposVia' => $tiposVia])
                 <hr class="my-4 opacity-25">
                 <div class="d-flex flex-wrap gap-2">
                     <button type="submit" class="btn btn-producer-main d-inline-flex align-items-center gap-2">

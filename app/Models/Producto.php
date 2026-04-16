@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Producto extends Model
@@ -29,12 +28,9 @@ class Producto extends Model
 
     public function etiquetaTipo(): string
     {
-        return self::tiposDisponibles()[$this->tipo] ?? ucfirst($this->tipo);
+        return self::tiposDisponibles()[$this->tipo] ?? ucfirst((string) $this->tipo);
     }
 
-    /**
-     * Clase Bootstrap para badge según tipo (variación visual).
-     */
     public function badgeTipoClass(): string
     {
         return match ($this->tipo) {
@@ -47,6 +43,14 @@ class Producto extends Model
         };
     }
 
+    /**
+     * Texto unificado: "Producto - Productor" (solo guion).
+     */
+    public function etiquetaNombreYProductor(): string
+    {
+        return ($this->nombre ?? '—').' - '.($this->productor?->full_name ?? 'Sin productor');
+    }
+
     protected $table = 'productos';
 
     protected $fillable = [
@@ -55,6 +59,7 @@ class Producto extends Model
         'descripcion',
         'productor_id',
         'activo',
+        'lote_id',
     ];
 
     /**
@@ -72,18 +77,23 @@ class Producto extends Model
         return $this->belongsTo(Producer::class, 'productor_id');
     }
 
+    public function lote(): BelongsTo
+    {
+        return $this->belongsTo(Lote::class, 'lote_id');
+    }
+
     public function eventosProduccion(): HasMany
     {
         return $this->hasMany(EventoProduccion::class, 'producto_id');
     }
 
-    public function lotes(): BelongsToMany
-    {
-        return $this->belongsToMany(Lote::class, 'lote_producto', 'producto_id', 'lote_id');
-    }
-
     public function detallesEnvio(): HasMany
     {
         return $this->hasMany(DetalleEnvio::class, 'producto_id');
+    }
+
+    public function scopeSinLote($query)
+    {
+        return $query->whereNull('lote_id');
     }
 }

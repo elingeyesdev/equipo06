@@ -12,7 +12,7 @@ class ProductoController extends Controller
     public function index()
     {
         $productos = Producto::query()
-            ->with('productor')
+            ->with(['productor', 'lote'])
             ->latest()
             ->paginate(10);
 
@@ -65,7 +65,7 @@ class ProductoController extends Controller
 
     public function show(Producto $producto)
     {
-        $producto->load('productor');
+        $producto->load(['productor', 'lote']);
 
         return view('productos.show', compact('producto'));
     }

@@ -34,12 +34,10 @@
                 <div class="card-body p-4">
                     <h2 class="h6 text-uppercase text-muted mb-3">Identificación</h2>
                     <dl class="row mb-0 g-3">
-                        <dt class="col-sm-4 text-muted small">ID interno</dt>
-                        <dd class="col-sm-8 mb-0 fw-medium">{{ $producer->id }}</dd>
-                        <dt class="col-sm-4 text-muted small">Documento</dt>
+                        <dt class="col-sm-4 text-muted small">Carnet de identidad</dt>
                         <dd class="col-sm-8 mb-0">{{ $producer->document_number ?? '—' }}</dd>
                         <dt class="col-sm-4 text-muted small">Dirección</dt>
-                        <dd class="col-sm-8 mb-0">{{ $producer->address ?? '—' }}</dd>
+                        <dd class="col-sm-8 mb-0">{{ $producer->direccionCompleta() ?? '—' }}</dd>
                     </dl>
                 </div>
             </div>

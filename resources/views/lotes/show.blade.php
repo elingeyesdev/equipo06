@@ -64,7 +64,10 @@
                 <span aria-hidden="true">📦</span>
                 <span class="lote-code-display">{{ $lote->codigo_lote }}</span>
             </h1>
-            <p class="text-muted mb-0 small">Detalle del lote y cadena de productores asociada</p>
+            @if ($lote->nombre_lote)
+                <p class="text-muted mb-0 small">{{ $lote->nombre_lote }}</p>
+            @endif
+            <p class="text-muted mb-0 small">Mismo productor, misma fecha de cosecha y productos vinculados.</p>
         </div>
         <a href="{{ route('lotes.index') }}" class="btn btn-outline-secondary rounded-pill px-4">
             <i class="bi bi-arrow-left me-1"></i>Volver al listado
@@ -78,30 +81,44 @@
                 <span class="fw-semibold fs-5 text-dark">Resumen del lote</span>
             </div>
             <div class="lote-resumen-line">
-                <span class="fs-4" aria-hidden="true">📦</span>
-                <span><strong>Lote:</strong> <span class="lote-code-display">{{ $lote->codigo_lote }}</span></span>
-            </div>
-            <div class="lote-resumen-line">
-                <span class="fs-4" aria-hidden="true">📊</span>
-                <span><strong>Productos:</strong> {{ $lote->productos->count() }}</span>
+                <span class="fs-4" aria-hidden="true">🧑‍🌾</span>
+                <span><strong>Productor:</strong> {{ $lote->productor->full_name ?? '—' }}</span>
             </div>
             <div class="lote-resumen-line">
                 <span class="fs-4" aria-hidden="true">📅</span>
-                <span><strong>Fecha:</strong> {{ $lote->fecha_creacion->format('d/m/Y') }}</span>
+                <span><strong>Fecha de cosecha:</strong> {{ $lote->fecha_cosecha?->format('d/m/Y') ?? '—' }}</span>
             </div>
             <div class="lote-resumen-line">
                 <span class="fs-4" aria-hidden="true">🏷️</span>
+                <span><strong>Tipo de producto:</strong> {{ $lote->etiquetaTipoProducto() }}</span>
+            </div>
+            <div class="lote-resumen-line">
+                <span class="fs-4" aria-hidden="true">📊</span>
+                <span><strong>Cantidad registrada:</strong> {{ number_format((float) $lote->cantidad, 3, ',', '.') }}</span>
+            </div>
+            <div class="lote-resumen-line">
+                <span class="fs-4" aria-hidden="true">📦</span>
+                <span><strong>Productos en el lote:</strong> {{ $lote->productos->count() }}</span>
+            </div>
+            <div class="lote-resumen-line">
+                <span class="fs-4" aria-hidden="true">✅</span>
                 <span class="d-flex align-items-center gap-2 flex-wrap">
                     <strong>Estado:</strong>
                     <span class="badge rounded-pill {{ $lote->badgeEstadoClass() }} px-3 py-2">{{ $lote->etiquetaEstado() }}</span>
                 </span>
             </div>
+            @if ($lote->descripcion)
+                <div class="lote-resumen-line align-items-start">
+                    <span class="fs-4" aria-hidden="true">📝</span>
+                    <span><strong>Descripción:</strong> {{ $lote->descripcion }}</span>
+                </div>
+            @endif
         </div>
     </div>
 
     <div class="card shadow border-0 traz-card mb-4">
         <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
-            <i class="bi bi-diagram-3 text-primary"></i>
+            <i class="bi bi-box-seam text-primary"></i>
             <span class="fw-semibold">Productos en el lote</span>
         </div>
         <div class="card-body p-0">
@@ -110,55 +127,12 @@
             @else
                 <ul class="list-group list-group-flush">
                     @foreach ($lote->productos as $p)
-                        <li class="list-group-item d-flex align-items-center gap-2 py-3">
+                        <li class="list-group-item d-flex flex-wrap align-items-center gap-2 py-3">
                             <span class="badge rounded-pill {{ $p->badgeTipoClass() }}">{{ $p->etiquetaTipo() }}</span>
-                            <span class="fw-semibold">{{ $p->nombre }}</span>
+                            <span class="fw-semibold">{{ $p->etiquetaNombreYProductor() }}</span>
                         </li>
                     @endforeach
                 </ul>
-            @endif
-        </div>
-    </div>
-
-    <div class="card shadow border-0 traz-card mb-4">
-        <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
-            <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-signpost-split text-success"></i>
-                <span class="fw-semibold">Trazabilidad del lote</span>
-            </div>
-            <span class="badge rounded-pill bg-light text-dark border small">Productor por producto</span>
-        </div>
-        <div class="card-body p-0">
-            @if ($lote->productos->isEmpty())
-                <p class="text-muted text-center py-4 mb-0">Sin datos de trazabilidad hasta agregar productos.</p>
-            @else
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0 align-middle table-traz">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="ps-4">Producto</th>
-                                <th>Tipo</th>
-                                <th class="pe-4">Productor</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($lote->productos as $p)
-                                <tr>
-                                    <td class="ps-4 fw-semibold">{{ $p->nombre }}</td>
-                                    <td>
-                                        <span class="badge rounded-pill {{ $p->badgeTipoClass() }} px-3 py-2">{{ $p->etiquetaTipo() }}</span>
-                                    </td>
-                                    <td class="pe-4">
-                                        <span class="d-inline-flex align-items-center gap-2">
-                                            <i class="bi bi-person-badge text-muted"></i>
-                                            {{ $p->productor->full_name ?? '—' }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
             @endif
         </div>
     </div>

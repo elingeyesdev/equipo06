@@ -24,30 +24,40 @@
         transition: transform 0.15s ease;
     }
     .dash-stat:hover { transform: translateY(-2px); }
-    .table-events thead th {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: #6c757d;
-        border-bottom-width: 1px;
+    .dash-etapa {
+        border-radius: 1rem;
+        border: none;
+        overflow: hidden;
+        min-height: 22rem;
+        display: flex;
+        flex-direction: column;
     }
-    .table-events tbody tr { border-bottom: 1px solid rgba(0,0,0,0.04); }
-    .badge-etapa-siembra {
-        background-color: #d8f3e4 !important;
-        color: #1a5c38 !important;
-        font-weight: 600;
+    .dash-etapa-siembra { background: linear-gradient(180deg, #e8f8ef 0%, #fff 38%); border: 1px solid rgba(45,138,110,0.15) !important; }
+    .dash-etapa-cultivo { background: linear-gradient(180deg, #e4f4ea 0%, #fff 38%); border: 1px solid rgba(45,138,110,0.18) !important; }
+    .dash-etapa-cosecha { background: linear-gradient(180deg, #fdf6e4 0%, #fff 38%); border: 1px solid rgba(234,179,8,0.25) !important; }
+    .dash-etapa-head {
+        padding: 1rem 1.15rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
-    .badge-etapa-cultivo {
-        background-color: #c5ead4 !important;
-        color: #14532d !important;
-        font-weight: 600;
+    .dash-etapa-body {
+        padding: 0.75rem 1rem 1rem;
+        flex: 1;
+        overflow-y: auto;
+        max-height: 28rem;
     }
-    .badge-etapa-cosecha {
-        background-color: #fdf0d5 !important;
-        color: #7a5c16 !important;
-        font-weight: 600;
+    .mini-event {
+        border-radius: 0.65rem;
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.06);
+        padding: 0.65rem 0.75rem;
+        margin-bottom: 0.6rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
-    /* Timeline vertical */
+    .mini-event:last-child { margin-bottom: 0; }
     .timeline-vertical {
         position: relative;
         padding-left: 2rem;
@@ -63,10 +73,7 @@
         background: linear-gradient(180deg, #dee2e6, #e9ecef);
         border-radius: 3px;
     }
-    .timeline-item {
-        position: relative;
-        padding-bottom: 1.35rem;
-    }
+    .timeline-item { position: relative; padding-bottom: 1.35rem; }
     .timeline-item:last-child { padding-bottom: 0; }
     .timeline-dot {
         position: absolute;
@@ -86,6 +93,21 @@
         border-left: 4px solid var(--tl-accent, #adb5bd);
         background: #fff;
     }
+    .badge-etapa-siembra {
+        background-color: #d8f3e4 !important;
+        color: #1a5c38 !important;
+        font-weight: 600;
+    }
+    .badge-etapa-cultivo {
+        background-color: #c5ead4 !important;
+        color: #14532d !important;
+        font-weight: 600;
+    }
+    .badge-etapa-cosecha {
+        background-color: #fdf0d5 !important;
+        color: #7a5c16 !important;
+        font-weight: 600;
+    }
 </style>
 @endpush
 
@@ -98,7 +120,7 @@
                     ENT_1.3 Gestión del proceso de producción
                 </h1>
                 <p class="text-muted mb-0 lead fs-6">
-                    Registro y seguimiento de etapas: pendiente, en proceso (manual o por hora programada) y completado.
+                    Panel por etapas (siembra, cultivo, cosecha). Formato de producto: <strong>Producto - Productor</strong>.
                 </p>
             </div>
             <a href="{{ route('eventos-produccion.create') }}" class="btn btn-process-main d-inline-flex align-items-center gap-2">
@@ -155,12 +177,111 @@
         </div>
     </div>
 
-    {{-- Línea de tiempo --}}
+    <h2 class="h6 text-uppercase text-muted mb-3 px-1">Vista por etapa</h2>
+    <div class="row g-4 mb-4">
+        <div class="col-lg-4">
+            <div class="card shadow-sm dash-etapa dash-etapa-siembra h-100">
+                <div class="dash-etapa-head text-success border-bottom border-success border-opacity-25">
+                    <span class="fs-3" aria-hidden="true">🌱</span> Siembra
+                </div>
+                <div class="dash-etapa-body">
+                    @forelse ($eventosPorEtapa['siembra'] as $ev)
+                        <div class="mini-event">
+                            <div class="small text-muted mb-1"><i class="bi bi-calendar3 me-1"></i>{{ $ev->fecha->format('d/m/Y') }}</div>
+                            <div class="fw-semibold small mb-2">{{ $ev->etiquetaProductoProductor() }}</div>
+                            <span class="badge rounded-pill {{ $ev->badgeEstadoEfectivoClass() }}">{{ $ev->etiquetaEstadoEfectivo() }}</span>
+                            <div class="mt-2 d-flex flex-wrap gap-1">
+                                @if ($ev->estado !== 'completado')
+                                    <form action="{{ route('eventos-produccion.completar', $ev) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-success rounded-pill">Completar</button>
+                                    </form>
+                                @endif
+                                <a href="{{ route('eventos-produccion.edit', $ev) }}" class="btn btn-sm btn-outline-primary rounded-pill">Editar</a>
+                                <form action="{{ route('eventos-produccion.destroy', $ev) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar este evento?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-muted small fst-italic mb-0">Sin eventos de siembra.</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm dash-etapa dash-etapa-cultivo h-100">
+                <div class="dash-etapa-head text-success border-bottom border-success border-opacity-25">
+                    <span class="fs-3" aria-hidden="true">🌿</span> Cultivo
+                </div>
+                <div class="dash-etapa-body">
+                    @forelse ($eventosPorEtapa['cultivo'] as $ev)
+                        <div class="mini-event">
+                            <div class="small text-muted mb-1"><i class="bi bi-calendar3 me-1"></i>{{ $ev->fecha->format('d/m/Y') }}</div>
+                            <div class="fw-semibold small mb-2">{{ $ev->etiquetaProductoProductor() }}</div>
+                            <span class="badge rounded-pill {{ $ev->badgeEstadoEfectivoClass() }}">{{ $ev->etiquetaEstadoEfectivo() }}</span>
+                            <div class="mt-2 d-flex flex-wrap gap-1">
+                                @if ($ev->estado !== 'completado')
+                                    <form action="{{ route('eventos-produccion.completar', $ev) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-success rounded-pill">Completar</button>
+                                    </form>
+                                @endif
+                                <a href="{{ route('eventos-produccion.edit', $ev) }}" class="btn btn-sm btn-outline-primary rounded-pill">Editar</a>
+                                <form action="{{ route('eventos-produccion.destroy', $ev) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar este evento?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-muted small fst-italic mb-0">Sin eventos de cultivo.</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm dash-etapa dash-etapa-cosecha h-100">
+                <div class="dash-etapa-head text-warning-emphasis border-bottom border-warning border-opacity-25">
+                    <span class="fs-3" aria-hidden="true">🌾</span> Cosecha
+                </div>
+                <div class="dash-etapa-body">
+                    @forelse ($eventosPorEtapa['cosecha'] as $ev)
+                        <div class="mini-event">
+                            <div class="small text-muted mb-1"><i class="bi bi-calendar3 me-1"></i>{{ $ev->fecha->format('d/m/Y') }}</div>
+                            <div class="fw-semibold small mb-2">{{ $ev->etiquetaProductoProductor() }}</div>
+                            <span class="badge rounded-pill {{ $ev->badgeEstadoEfectivoClass() }}">{{ $ev->etiquetaEstadoEfectivo() }}</span>
+                            <div class="mt-2 d-flex flex-wrap gap-1">
+                                @if ($ev->estado !== 'completado')
+                                    <form action="{{ route('eventos-produccion.completar', $ev) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-success rounded-pill">Completar</button>
+                                    </form>
+                                @endif
+                                <a href="{{ route('eventos-produccion.edit', $ev) }}" class="btn btn-sm btn-outline-primary rounded-pill">Editar</a>
+                                <form action="{{ route('eventos-produccion.destroy', $ev) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar este evento?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-muted small fst-italic mb-0">Sin eventos de cosecha.</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card shadow border-0 overflow-hidden mb-4">
         <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-clock-history text-primary"></i>
-                <span class="fw-semibold">Historial reciente (línea de tiempo)</span>
+                <span class="fw-semibold">Línea de tiempo reciente</span>
             </div>
             <span class="badge rounded-pill bg-light text-dark border small">Últimos {{ $timelineEventos->count() }} movimientos</span>
         </div>
@@ -188,9 +309,8 @@
                                         {{ $ev->fecha->format('d/m/Y') }}
                                     </div>
                                 </div>
-                                <div class="small text-secondary mb-2">
-                                    <i class="bi bi-box-seam me-1"></i>
-                                    <strong>Producto:</strong> {{ $ev->producto->nombre ?? '—' }}
+                                <div class="small text-secondary mb-2 fw-semibold">
+                                    <i class="bi bi-box-seam me-1"></i>{{ $ev->etiquetaProductoProductor() }}
                                 </div>
                                 @if($ev->descripcion)
                                     <p class="small mb-2 text-body-secondary">{{ \Illuminate\Support\Str::limit($ev->descripcion, 160) }}</p>
@@ -209,92 +329,5 @@
                 </div>
             @endif
         </div>
-    </div>
-
-    {{-- Tabla --}}
-    <div class="card shadow border-0 overflow-hidden">
-        <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
-            <i class="bi bi-table text-primary"></i>
-            <span class="fw-semibold">Listado de eventos</span>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover table-events mb-0 align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="ps-4">ID</th>
-                            <th>Producto</th>
-                            <th>Etapa</th>
-                            <th>Fecha</th>
-                            <th>Estado</th>
-                            <th class="text-end pe-4">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($eventos as $evento)
-                            <tr>
-                                <td class="ps-4 text-muted">{{ $evento->id }}</td>
-                                <td class="fw-semibold">{{ $evento->producto->nombre ?? '—' }}</td>
-                                <td>
-                                    <span class="d-inline-flex align-items-center gap-1">
-                                        <span aria-hidden="true">{{ $evento->emojiEtapa() }}</span>
-                                        <span class="badge rounded-pill {{ $evento->badgeEtapaClass() }} px-3 py-2">{{ $evento->etiquetaEtapa() }}</span>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>{{ $evento->fecha->format('d/m/Y') }}</span>
-                                </td>
-                                <td>
-                                    <div class="d-flex flex-column gap-1">
-                                        <span class="badge rounded-pill {{ $evento->badgeEstadoEfectivoClass() }} px-3 py-2 align-self-start">
-                                            {{ $evento->etiquetaEstadoEfectivo() }}
-                                        </span>
-                                        @if ($evento->estadoEsAutomaticoEnProceso())
-                                            <span class="small text-muted">Auto. por horario</span>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td class="text-end pe-4">
-                                    <div class="d-inline-flex flex-wrap gap-2 justify-content-end">
-                                        @if ($evento->estado !== 'completado')
-                                            <form action="{{ route('eventos-produccion.completar', $evento) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 d-inline-flex align-items-center gap-1" title="Marcar como completado">
-                                                    <i class="bi bi-check2-circle"></i>
-                                                    Completado
-                                                </button>
-                                            </form>
-                                        @endif
-                                        <a href="{{ route('eventos-produccion.edit', $evento) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                            Editar
-                                        </a>
-                                        <form action="{{ route('eventos-produccion.destroy', $evento) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('¿Eliminar este evento?')">
-                                                Eliminar
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="text-center py-5">
-                                    <div class="text-muted mb-2 fs-1" aria-hidden="true">📋</div>
-                                    <p class="mb-1 fw-semibold text-secondary">Aún no hay eventos de producción registrados</p>
-                                    <p class="small text-muted mb-3">Registra siembra, cultivo o cosecha vinculados a un producto.</p>
-                                    <a href="{{ route('eventos-produccion.create') }}" class="btn btn-process-main btn-sm">Registrar evento</a>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="mt-3 d-flex justify-content-center">
-        {{ $eventos->links() }}
     </div>
 @endsection

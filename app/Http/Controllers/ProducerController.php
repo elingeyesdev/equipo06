@@ -8,9 +8,6 @@ use Illuminate\Validation\Rule;
 
 class ProducerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $producers = Producer::query()
@@ -23,22 +20,18 @@ class ProducerController extends Controller
         return view('productores.index', compact('producers', 'total', 'activos'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $producer = new Producer;
+        $tiposVia = Producer::tiposVia();
 
-        return view('productores.create', compact('producer'));
+        return view('productores.create', compact('producer', 'tiposVia'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $this->mergeOptionalStrings($request);
+        $this->normalizePhoneForRequest($request);
 
         $validated = $request->validate(
             $this->producerRules(),
@@ -55,28 +48,22 @@ class ProducerController extends Controller
             ->with('status', 'Productor registrado correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Producer $producer)
     {
         return view('productores.show', compact('producer'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Producer $producer)
     {
-        return view('productores.edit', compact('producer'));
+        $tiposVia = Producer::tiposVia();
+
+        return view('productores.edit', compact('producer', 'tiposVia'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Producer $producer)
     {
         $this->mergeOptionalStrings($request);
+        $this->normalizePhoneForRequest($request);
 
         $validated = $request->validate(
             $this->producerRules($producer->id),
@@ -93,9 +80,6 @@ class ProducerController extends Controller
             ->with('status', 'Productor actualizado correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Producer $producer)
     {
         $producer->delete();
@@ -105,17 +89,34 @@ class ProducerController extends Controller
             ->with('status', 'Productor eliminado correctamente.');
     }
 
-    /**
-     * Convierte cadenas vacías en null para que no fallen reglas "si viene valor".
-     */
     private function mergeOptionalStrings(Request $request): void
     {
         $request->merge([
             'document_number' => $request->filled('document_number') ? trim($request->input('document_number')) : null,
-            'phone' => $request->filled('phone') ? trim($request->input('phone')) : null,
             'email' => $request->filled('email') ? trim($request->input('email')) : null,
-            'address' => $request->filled('address') ? trim($request->input('address')) : null,
+            'address_detail' => $request->filled('address_detail') ? trim($request->input('address_detail')) : null,
+            'address_type' => $request->filled('address_type') ? trim($request->input('address_type')) : null,
         ]);
+    }
+
+    /**
+     * Normaliza teléfono a +591 seguido de 8 dígitos (Bolivia).
+     */
+    private function normalizePhoneForRequest(Request $request): void
+    {
+        if (! $request->filled('phone')) {
+            $request->merge(['phone' => null]);
+
+            return;
+        }
+
+        $digits = preg_replace('/\D/', '', (string) $request->input('phone')) ?? '';
+        if (str_starts_with($digits, '591') && strlen($digits) >= 11) {
+            $digits = substr($digits, 3);
+        }
+        if (strlen($digits) === 8) {
+            $request->merge(['phone' => '+591'.$digits]);
+        }
     }
 
     /**
@@ -128,6 +129,8 @@ class ProducerController extends Controller
             $uniqueDoc = $uniqueDoc->ignore($ignoreProducerId);
         }
 
+        $tiposVia = array_keys(Producer::tiposVia());
+
         return [
             'full_name' => [
                 'required',
@@ -139,24 +142,33 @@ class ProducerController extends Controller
             'document_number' => [
                 'nullable',
                 'string',
-                'max:50',
-                'regex:/^(?=.*\d)[A-Za-z0-9\-\.]{4,50}$/',
+                'max:20',
+                'regex:/^\d{5,10}$/',
                 $uniqueDoc,
             ],
             'phone' => [
                 'nullable',
                 'string',
-                'max:25',
-                'regex:/^[\d\+\-\s\(\)]+$/',
+                'regex:/^\+591\d{8}$/',
+            ],
+            'email' => ['nullable', 'email:rfc', 'max:150'],
+            'address_type' => ['nullable', 'required_with:address_detail', 'string', Rule::in($tiposVia)],
+            'address_detail' => [
+                'nullable',
+                'required_with:address_type',
+                'string',
+                'min:4',
+                'max:200',
+                'regex:/^[\p{L}0-9\s\.\#\-\/]+$/u',
                 function (string $attribute, mixed $value, \Closure $fail): void {
-                    $digits = preg_replace('/\D/', '', (string) $value) ?? '';
-                    if (strlen($digits) < 7 || strlen($digits) > 15) {
-                        $fail('El teléfono debe contener entre 7 y 15 dígitos.');
+                    if ($value === null || $value === '') {
+                        return;
+                    }
+                    if (! preg_match('/\d/', (string) $value)) {
+                        $fail('En la dirección debe incluirse al menos un número (ej. número de puerta o edificio).');
                     }
                 },
             ],
-            'email' => ['nullable', 'email:rfc', 'max:150'],
-            'address' => ['nullable', 'string', 'max:255'],
             'is_active' => ['nullable', 'boolean'],
         ];
     }
@@ -168,8 +180,9 @@ class ProducerController extends Controller
     {
         return [
             'full_name.regex' => 'El nombre solo puede incluir letras, espacios, puntos, apóstrofes o guiones.',
-            'document_number.regex' => 'El documento debe tener al menos 4 caracteres, incluir al menos un número y solo letras, números, guiones o puntos.',
-            'phone.regex' => 'El teléfono solo puede incluir dígitos, espacios, +, - o paréntesis.',
+            'document_number.regex' => 'El carnet de identidad debe contener solo dígitos (5 a 10 caracteres).',
+            'phone.regex' => 'El teléfono debe tener el formato +591 seguido de 8 dígitos (ej. +59176045341).',
+            'address_detail.regex' => 'Use letras, números, espacios, #, / o guiones (ej. Banzer #123).',
         ];
     }
 
@@ -180,10 +193,11 @@ class ProducerController extends Controller
     {
         return [
             'full_name' => 'nombre completo',
-            'document_number' => 'documento',
+            'document_number' => 'carnet de identidad',
             'phone' => 'teléfono',
             'email' => 'correo',
-            'address' => 'dirección',
+            'address_type' => 'tipo de vía',
+            'address_detail' => 'dirección',
             'is_active' => 'estado activo',
         ];
     }

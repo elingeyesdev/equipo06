@@ -155,6 +155,22 @@ class EventoProduccion extends Model
         };
     }
 
+    /**
+     * Formato único solicitado: "Producto - Productor".
+     */
+    public function etiquetaProductoProductor(): string
+    {
+        if (! $this->relationLoaded('producto')) {
+            $this->load('producto.productor');
+        } elseif (! $this->producto?->relationLoaded('productor')) {
+            $this->producto?->load('productor');
+        }
+
+        return $this->producto
+            ? $this->producto->etiquetaNombreYProductor()
+            : '—';
+    }
+
     public function producto(): BelongsTo
     {
         return $this->belongsTo(Producto::class, 'producto_id');

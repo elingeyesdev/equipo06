@@ -104,10 +104,10 @@
                 <table class="table table-hover table-products mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th class="ps-4">ID</th>
-                            <th>Nombre</th>
+                            <th class="ps-4">Nombre</th>
                             <th>Tipo</th>
                             <th>Productor</th>
+                            <th>Lote</th>
                             <th>Estado</th>
                             <th class="text-end pe-4">Acciones</th>
                         </tr>
@@ -115,8 +115,7 @@
                     <tbody>
                         @forelse ($productos as $producto)
                             <tr>
-                                <td class="ps-4 text-muted">{{ $producto->id }}</td>
-                                <td class="fw-semibold">{{ $producto->nombre }}</td>
+                                <td class="ps-4 fw-semibold">{{ $producto->nombre }}</td>
                                 <td>
                                     <span class="badge rounded-pill {{ $producto->badgeTipoClass() }} px-3 py-2">
                                         {{ $producto->etiquetaTipo() }}
@@ -127,6 +126,13 @@
                                         <i class="bi bi-person text-muted"></i>
                                         {{ $producto->productor->full_name ?? '—' }}
                                     </span>
+                                </td>
+                                <td>
+                                    @if ($producto->lote)
+                                        <a href="{{ route('lotes.show', $producto->lote) }}" class="small font-monospace">{{ $producto->lote->codigo_lote }}</a>
+                                    @else
+                                        <span class="text-muted small">—</span>
+                                    @endif
                                 </td>
                                 <td>
                                     <span class="badge rounded-pill {{ $producto->activo ? 'text-bg-success' : 'text-bg-secondary' }} px-3 py-2">

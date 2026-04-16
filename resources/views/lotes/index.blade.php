@@ -50,7 +50,7 @@
                     ENT_1.4 Gestión de empaquetación por lote
                 </h1>
                 <p class="text-muted mb-0 lead fs-6">
-                    Agrupación de productos en lotes para trazabilidad
+                    Lotes por productor, fecha de cosecha y productos vinculados (un producto pertenece a un solo lote).
                 </p>
             </div>
             <a href="{{ route('lotes.create') }}" class="btn btn-lote-main d-inline-flex align-items-center gap-2">
@@ -95,8 +95,9 @@
                 <table class="table table-hover table-lotes mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th class="ps-4">Código lote</th>
-                            <th>Fecha</th>
+                            <th class="ps-4">Código</th>
+                            <th>Productor</th>
+                            <th>Cosecha</th>
                             <th>Productos</th>
                             <th>Estado</th>
                             <th class="text-end pe-4">Acciones</th>
@@ -105,9 +106,15 @@
                     <tbody>
                         @forelse ($lotes as $lote)
                             <tr>
-                                <td class="ps-4"><span class="lote-code">{{ $lote->codigo_lote }}</span></td>
+                                <td class="ps-4">
+                                    <span class="lote-code">{{ $lote->codigo_lote }}</span>
+                                    @if ($lote->nombre_lote)
+                                        <div class="small text-muted">{{ $lote->nombre_lote }}</div>
+                                    @endif
+                                </td>
+                                <td class="small">{{ $lote->productor->full_name ?? '—' }}</td>
                                 <td>
-                                    <span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>{{ $lote->fecha_creacion->format('d/m/Y') }}</span>
+                                    <span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>{{ $lote->fecha_cosecha?->format('d/m/Y') ?? '—' }}</span>
                                 </td>
                                 <td>
                                     <span class="badge rounded-pill bg-light text-dark border px-3 py-2">
@@ -125,10 +132,10 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center py-5">
+                                <td colspan="6" class="text-center py-5">
                                     <div class="text-muted mb-2 fs-1" aria-hidden="true">📦</div>
                                     <p class="mb-1 fw-semibold text-secondary">Aún no hay lotes registrados</p>
-                                    <p class="small text-muted mb-3">Crea un lote y asocia los productos que quieras rastrear juntos.</p>
+                                    <p class="small text-muted mb-3">Crea un lote y asocia productos del mismo productor.</p>
                                     <a href="{{ route('lotes.create') }}" class="btn btn-lote-main btn-sm">Crear lote</a>
                                 </td>
                             </tr>

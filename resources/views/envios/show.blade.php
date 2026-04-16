@@ -66,12 +66,11 @@
                     @else
                         <div class="table-responsive">
                             <table class="table table-hover mb-0 align-middle">
-                                <thead class="table-light"><tr><th class="ps-4">Producto</th><th>Productor</th><th class="text-end pe-4">Cantidad</th></tr></thead>
+                                <thead class="table-light"><tr><th class="ps-4">Producto - Productor</th><th class="text-end pe-4">Cantidad</th></tr></thead>
                                 <tbody>
                                     @foreach ($envio->detalles as $d)
                                         <tr>
-                                            <td class="ps-4 fw-medium">{{ $d->producto->nombre ?? '—' }}</td>
-                                            <td class="text-muted small">{{ $d->producto->productor->full_name ?? '—' }}</td>
+                                            <td class="ps-4 fw-medium">{{ $d->producto ? $d->producto->etiquetaNombreYProductor() : '—' }}</td>
                                             <td class="text-end pe-4 font-monospace">{{ number_format((float) $d->cantidad, 3, ',', '.') }}</td>
                                         </tr>
                                     @endforeach

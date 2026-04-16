@@ -18,7 +18,7 @@
                 <option value="" disabled {{ old('producto_id', $evento->producto_id) ? '' : 'selected' }}>Selecciona el producto…</option>
                 @foreach ($productos as $p)
                     <option value="{{ $p->id }}" @selected((string) old('producto_id', $evento->producto_id) === (string) $p->id)>
-                        {{ $p->nombre }} — {{ $p->productor->full_name ?? 'Sin productor' }}
+                        {{ $p->etiquetaNombreYProductor() }}
                     </option>
                 @endforeach
             </select>

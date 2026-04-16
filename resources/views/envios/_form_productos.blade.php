@@ -19,8 +19,7 @@
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
                 <tr>
-                    <th class="ps-3">Producto</th>
-                    <th>Productor</th>
+                    <th class="ps-3">Producto - Productor</th>
                     <th class="text-end pe-3" style="min-width: 9rem;">Cantidad</th>
                 </tr>
             </thead>
@@ -31,8 +30,7 @@
                         $oldVal = old('cantidades.'.$p->id, $prev !== null ? (string) $prev : '');
                     @endphp
                     <tr>
-                        <td class="ps-3 fw-medium">{{ $p->nombre }}</td>
-                        <td class="text-muted small">{{ $p->productor->full_name ?? '—' }}</td>
+                        <td class="ps-3 fw-medium">{{ $p->etiquetaNombreYProductor() }}</td>
                         <td class="text-end pe-3">
                             <input type="number"
                                    name="cantidades[{{ $p->id }}]"

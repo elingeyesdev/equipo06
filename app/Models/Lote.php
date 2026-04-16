@@ -4,7 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class Lote extends Model
 {
     use HasFactory;
@@ -13,7 +15,12 @@ class Lote extends Model
 
     protected $fillable = [
         'codigo_lote',
-        'fecha_creacion',
+        'nombre_lote',
+        'fecha_cosecha',
+        'productor_id',
+        'descripcion',
+        'cantidad',
+        'tipo_producto',
         'estado',
     ];
 
@@ -23,7 +30,8 @@ class Lote extends Model
     protected function casts(): array
     {
         return [
-            'fecha_creacion' => 'date',
+            'fecha_cosecha' => 'date',
+            'cantidad' => 'decimal:3',
         ];
     }
 
@@ -39,7 +47,7 @@ class Lote extends Model
 
     public function etiquetaEstado(): string
     {
-        return self::estadosDisponibles()[$this->estado] ?? ucfirst($this->estado);
+        return self::estadosDisponibles()[$this->estado] ?? ucfirst((string) $this->estado);
     }
 
     public function badgeEstadoClass(): string
@@ -50,22 +58,26 @@ class Lote extends Model
         };
     }
 
-    public function productos(): BelongsToMany
+    public function etiquetaTipoProducto(): string
     {
-        return $this->belongsToMany(Producto::class, 'lote_producto', 'lote_id', 'producto_id');
+        return Producto::tiposDisponibles()[$this->tipo_producto] ?? ucfirst((string) $this->tipo_producto);
     }
 
-    /**
-     * Vista previa del siguiente código (sin bloqueo). Formato: LOTE-2026-0001
-     */
+    public function productor(): BelongsTo
+    {
+        return $this->belongsTo(Producer::class, 'productor_id');
+    }
+
+    public function productos(): HasMany
+    {
+        return $this->hasMany(Producto::class, 'lote_id');
+    }
+
     public static function previewSiguienteCodigo(): string
     {
         return self::siguienteCodigoLote(lockForUpdate: false);
     }
 
-    /**
-     * Siguiente código consecutivo por año. Con lockForUpdate debe llamarse dentro de DB::transaction.
-     */
     public static function siguienteCodigoLote(bool $lockForUpdate = false): string
     {
         $year = now()->year;
