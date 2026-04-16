@@ -22,6 +22,11 @@
             <span aria-hidden="true">🚚</span> Registrar envío
         </h1>
         <p class="text-muted mb-0">Define origen, destino, fechas y las cantidades por producto. El código de guía se asigna al guardar.</p>
+        <div class="alert alert-light border shadow-sm small mt-3 mb-0 d-inline-flex align-items-center gap-2 py-2 px-3">
+            <i class="bi bi-upc-scan text-primary"></i>
+            <span>Próximo código de guía:</span>
+            <span class="font-monospace fw-semibold text-success">{{ $codigoPreview }}</span>
+        </div>
     </div>
 
     <div class="card shadow-sm border-0">

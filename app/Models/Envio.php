@@ -86,4 +86,44 @@ class Envio extends Model
         return $this->hasMany(AsignacionEnvio::class, 'envio_id')
             ->orderByDesc('fecha_asignacion');
     }
+
+    /**
+     * Vista previa del siguiente código de guía (sin bloqueo). Formato: GUIA-2026-0001
+     */
+    public static function previewSiguienteCodigoGuia(): string
+    {
+        return self::siguienteCodigoGuia(lockForUpdate: false);
+    }
+
+    /**
+     * Siguiente código consecutivo por año. Con lockForUpdate debe llamarse dentro de DB::transaction.
+     */
+    public static function siguienteCodigoGuia(bool $lockForUpdate = false): string
+    {
+        $year = now()->year;
+        $prefix = 'GUIA-'.$year.'-';
+        $prefixLen = strlen($prefix);
+
+        $query = static::query()->where('codigo', 'like', $prefix.'%');
+
+        if ($lockForUpdate) {
+            $query->lockForUpdate();
+        }
+
+        $maxNum = (int) $query->get(['codigo'])
+            ->map(function (self $row) use ($prefix, $prefixLen) {
+                $code = $row->codigo;
+                if (! is_string($code) || ! str_starts_with($code, $prefix)) {
+                    return 0;
+                }
+                $suffix = substr($code, $prefixLen);
+
+                return ctype_digit($suffix) ? (int) $suffix : 0;
+            })
+            ->max();
+
+        $next = $maxNum + 1;
+
+        return $prefix.str_pad((string) $next, 4, '0', STR_PAD_LEFT);
+    }
 }

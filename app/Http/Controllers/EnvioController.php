@@ -7,7 +7,6 @@ use App\Models\Producto;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class EnvioController extends Controller
@@ -36,8 +35,9 @@ class EnvioController extends Controller
         $estados = Envio::estadosDisponibles();
         $productos = $this->productosParaFormulario($envio);
         $cantidadesPrevias = [];
+        $codigoPreview = Envio::previewSiguienteCodigoGuia();
 
-        return view('envios.create', compact('envio', 'estados', 'productos', 'cantidadesPrevias'));
+        return view('envios.create', compact('envio', 'estados', 'productos', 'cantidadesPrevias', 'codigoPreview'));
     }
 
     public function store(Request $request)
@@ -64,11 +64,11 @@ class EnvioController extends Controller
         ]);
 
         $validated['observaciones'] = $request->filled('observaciones') ? trim($request->input('observaciones')) : null;
-        $validated['codigo'] = (string) Str::ulid();
 
         $detalles = $this->detallesValidosDesdeRequest($request, null);
 
         DB::transaction(function () use ($validated, $detalles) {
+            $validated['codigo'] = Envio::siguienteCodigoGuia(lockForUpdate: true);
             $envio = Envio::create($validated);
             $this->persistDetalles($envio, $detalles);
         });
