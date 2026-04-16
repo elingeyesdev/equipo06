@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EventoProduccion;
 use App\Models\Lote;
 use App\Models\Producer;
 use App\Models\Producto;
@@ -16,14 +17,30 @@ class LoteController extends Controller
         $lotes = Lote::query()
             ->with('productor')
             ->withCount('productos')
+            ->whereNotNull('productor_id')
+            ->whereHas('productos')
             ->orderByDesc('fecha_cosecha')
             ->orderByDesc('id')
             ->paginate(12);
 
-        $total = Lote::query()->count();
-        $activos = Lote::query()->where('estado', 'activo')->count();
+        $total = Lote::query()
+            ->whereNotNull('productor_id')
+            ->whereHas('productos')
+            ->count();
 
-        return view('lotes.index', compact('lotes', 'total', 'activos'));
+        $activos = Lote::query()
+            ->whereNotNull('productor_id')
+            ->whereHas('productos')
+            ->where('estado', 'activo')
+            ->count();
+
+        $cerrados = Lote::query()
+            ->whereNotNull('productor_id')
+            ->whereHas('productos')
+            ->where('estado', 'cerrado')
+            ->count();
+
+        return view('lotes.index', compact('lotes', 'total', 'activos', 'cerrados'));
     }
 
     public function create()
@@ -125,7 +142,18 @@ class LoteController extends Controller
             'productos' => fn ($q) => $q->orderBy('nombre'),
         ]);
 
-        return view('lotes.show', compact('lote'));
+        $eventosProduccion = collect();
+        if ($lote->productos->isNotEmpty()) {
+            $eventosProduccion = EventoProduccion::query()
+                ->whereIn('producto_id', $lote->productos->pluck('id'))
+                ->with(['producto' => fn ($q) => $q->with('productor')])
+                ->orderByDesc('fecha')
+                ->orderByDesc('id')
+                ->limit(30)
+                ->get();
+        }
+
+        return view('lotes.show', compact('lote', 'eventosProduccion'));
     }
 
     public function edit(Lote $lote)

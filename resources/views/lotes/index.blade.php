@@ -38,6 +38,11 @@
         letter-spacing: 0.02em;
         color: #1a5c38;
     }
+    .lote-titulo-h {
+        font-size: 0.8rem;
+        color: #6c757d;
+        max-width: 22rem;
+    }
 </style>
 @endpush
 
@@ -50,7 +55,7 @@
                     ENT_1.4 Gestión de empaquetación por lote
                 </h1>
                 <p class="text-muted mb-0 lead fs-6">
-                    Lotes por productor, fecha de cosecha y productos vinculados (un producto pertenece a un solo lote).
+                    Lotes coherentes: mismo productor, misma fecha de cosecha, mismo tipo de producto y productos vinculados para trazabilidad.
                 </p>
             </div>
             <a href="{{ route('lotes.create') }}" class="btn btn-lote-main d-inline-flex align-items-center gap-2">
@@ -60,13 +65,17 @@
         </div>
     </div>
 
+    @if (session('status'))
+        <div class="alert alert-success border-0 shadow-sm mb-4">{{ session('status') }}</div>
+    @endif
+
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-xl-4">
             <div class="card dash-stat shadow-sm bg-white">
                 <div class="card-body d-flex align-items-center gap-3">
                     <div class="rounded-3 bg-primary-subtle text-primary p-3"><i class="bi bi-collection fs-4"></i></div>
                     <div>
-                        <div class="text-muted small text-uppercase">Total lotes</div>
+                        <div class="text-muted small text-uppercase">Lotes en trazabilidad</div>
                         <div class="h4 mb-0 fw-bold">{{ $total }}</div>
                     </div>
                 </div>
@@ -79,6 +88,17 @@
                     <div>
                         <div class="text-muted small text-uppercase">Activos</div>
                         <div class="h4 mb-0 fw-bold">{{ $activos }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-xl-4">
+            <div class="card dash-stat shadow-sm bg-white">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-secondary-subtle text-secondary p-3"><i class="bi bi-archive fs-4"></i></div>
+                    <div>
+                        <div class="text-muted small text-uppercase">Cerrados</div>
+                        <div class="h4 mb-0 fw-bold">{{ $cerrados }}</div>
                     </div>
                 </div>
             </div>
@@ -97,7 +117,9 @@
                         <tr>
                             <th class="ps-4">Código</th>
                             <th>Productor</th>
+                            <th>Tipo</th>
                             <th>Cosecha</th>
+                            <th class="text-end">Cantidad</th>
                             <th>Productos</th>
                             <th>Estado</th>
                             <th class="text-end pe-4">Acciones</th>
@@ -111,11 +133,18 @@
                                     @if ($lote->nombre_lote)
                                         <div class="small text-muted">{{ $lote->nombre_lote }}</div>
                                     @endif
+                                    <div class="lote-titulo-h text-truncate mt-1" title="{{ $lote->tituloLinea() }}">{{ $lote->tituloLinea() }}</div>
                                 </td>
-                                <td class="small">{{ $lote->productor->full_name ?? '—' }}</td>
+                                <td>
+                                    <span class="fw-medium">{{ $lote->productor->full_name ?? '—' }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill bg-light text-dark border px-2 py-2">{{ $lote->etiquetaTipoProducto() }}</span>
+                                </td>
                                 <td>
                                     <span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>{{ $lote->fecha_cosecha?->format('d/m/Y') ?? '—' }}</span>
                                 </td>
+                                <td class="text-end small font-monospace">{{ number_format((float) $lote->cantidad, 3, ',', '.') }}</td>
                                 <td>
                                     <span class="badge rounded-pill bg-light text-dark border px-3 py-2">
                                         <i class="bi bi-box-seam me-1"></i>{{ $lote->productos_count }}
@@ -125,17 +154,24 @@
                                     <span class="badge rounded-pill {{ $lote->badgeEstadoClass() }} px-3 py-2">{{ $lote->etiquetaEstado() }}</span>
                                 </td>
                                 <td class="text-end pe-4">
-                                    <a href="{{ route('lotes.show', $lote) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                        <i class="bi bi-eye me-1"></i>Ver
-                                    </a>
+                                    <a href="{{ route('lotes.show', $lote) }}" class="btn btn-sm btn-outline-primary rounded-pill px-2">Ver</a>
+                                    <a href="{{ route('lotes.edit', $lote) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-2">Editar</a>
+                                    <form action="{{ route('lotes.destroy', $lote) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2"
+                                                onclick="return confirm('¿Eliminar este lote? Los productos quedarán sin lote.')">
+                                            Eliminar
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-5">
+                                <td colspan="8" class="text-center py-5">
                                     <div class="text-muted mb-2 fs-1" aria-hidden="true">📦</div>
-                                    <p class="mb-1 fw-semibold text-secondary">Aún no hay lotes registrados</p>
-                                    <p class="small text-muted mb-3">Crea un lote y asocia productos del mismo productor.</p>
+                                    <p class="mb-1 fw-semibold text-secondary">No hay lotes listos para mostrar</p>
+                                    <p class="small text-muted mb-3">Se muestran solo lotes con productor, al menos un producto y datos coherentes.</p>
                                     <a href="{{ route('lotes.create') }}" class="btn btn-lote-main btn-sm">Crear lote</a>
                                 </td>
                             </tr>
