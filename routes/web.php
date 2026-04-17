@@ -5,6 +5,7 @@ use App\Http\Controllers\EventoProduccionController;
 use App\Http\Controllers\LoteController;
 use App\Http\Controllers\ProducerController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\TransportistaController;
 use App\Http\Controllers\UbicacionController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,4 +41,8 @@ Route::resource('envios', EnvioController::class)->parameters([
 
 Route::resource('ubicaciones', UbicacionController::class)->parameters([
     'ubicaciones' => 'ubicacion',
+]);
+
+Route::resource('transportistas', TransportistaController::class)->parameters([
+    'transportistas' => 'transportista',
 ]);
