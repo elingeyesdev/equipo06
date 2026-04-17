@@ -17,6 +17,10 @@
 @endpush
 
 @section('content')
+    @php
+        $cantidadEnviada = round((float) $envio->detalles->sum('cantidad'), 3);
+        $cantidadRecibida = $envio->recepcion?->cantidad_recibida !== null ? (float) $envio->recepcion->cantidad_recibida : null;
+    @endphp
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
             <h1 class="h3 mb-2 d-flex align-items-center gap-2">
@@ -161,6 +165,17 @@
                                 @error('conforme')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-md-6">
+                                <label for="cantidad_recibida" class="form-label fw-medium">Cantidad recibida *</label>
+                                <input id="cantidad_recibida" name="cantidad_recibida" type="number" step="0.001" min="0"
+                                       class="form-control @error('cantidad_recibida') is-invalid @enderror"
+                                       value="{{ old('cantidad_recibida', $cantidadRecibida) }}"
+                                       placeholder="Ej: 120.500" required>
+                                @error('cantidad_recibida')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                <div class="form-text">
+                                    Cantidad enviada (suma de detalle): <strong>{{ number_format($cantidadEnviada, 3, ',', '.') }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
                                 <label for="observaciones_recepcion" class="form-label fw-medium">Observación <span class="text-muted fw-normal">(opcional)</span></label>
                                 <textarea id="observaciones_recepcion" name="observaciones" rows="3"
                                           class="form-control @error('observaciones') is-invalid @enderror"
@@ -181,10 +196,24 @@
                                         @else
                                             <span class="badge text-bg-secondary">Pendiente</span>
                                         @endif
+                                        @if ($envio->recepcion->resultado_validacion)
+                                            <span class="badge {{ $envio->recepcion->resultado_validacion === 'completa' ? 'text-bg-success' : ($envio->recepcion->resultado_validacion === 'parcial' ? 'text-bg-warning text-dark' : 'text-bg-danger') }}">
+                                                {{ $envio->recepcion->etiquetaResultadoValidacion() }}
+                                            </span>
+                                        @endif
                                         · {{ $envio->recepcion->updated_at?->format('d/m/Y H:i') ?? '—' }}
                                     </span>
                                 @endif
                             </div>
+                            @if ($envio->recepcion && $envio->recepcion->cantidad_recibida !== null)
+                                <div class="col-12">
+                                    <div class="small text-muted">
+                                        Comparación de cantidad:
+                                        enviado <strong>{{ number_format($cantidadEnviada, 3, ',', '.') }}</strong>
+                                        vs recibido <strong>{{ number_format((float) $envio->recepcion->cantidad_recibida, 3, ',', '.') }}</strong>.
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </form>
                 </div>

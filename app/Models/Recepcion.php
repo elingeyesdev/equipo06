@@ -17,6 +17,8 @@ class Recepcion extends Model
         'fecha_llegada',
         'estado_entrega',
         'conforme',
+        'cantidad_recibida',
+        'resultado_validacion',
         'observaciones',
     ];
 
@@ -28,6 +30,7 @@ class Recepcion extends Model
         return [
             'fecha_llegada' => 'datetime',
             'conforme' => 'boolean',
+            'cantidad_recibida' => 'decimal:3',
         ];
     }
 
@@ -46,5 +49,15 @@ class Recepcion extends Model
     public function envio(): BelongsTo
     {
         return $this->belongsTo(Envio::class, 'envio_id');
+    }
+
+    public function etiquetaResultadoValidacion(): string
+    {
+        return match ($this->resultado_validacion) {
+            'completa' => 'Recepción completa',
+            'parcial' => 'Recepción parcial',
+            'exceso' => 'Exceso recibido',
+            default => 'Sin validar',
+        };
     }
 }
