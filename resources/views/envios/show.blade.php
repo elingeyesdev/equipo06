@@ -65,6 +65,16 @@
                     <h2 class="h6 text-uppercase text-muted mb-3">Fechas</h2>
                     <p class="mb-2"><strong>Creación:</strong> {{ $envio->fecha_creacion?->format('d/m/Y') }}</p>
                     <p class="mb-2"><strong>Programada:</strong> {{ $envio->fecha_programada?->format('d/m/Y') ?? '—' }}</p>
+                    <p class="mb-2">
+                        <strong>Responsable asignado:</strong>
+                        @if ($envio->transportista)
+                            <a href="{{ route('transportistas.show', $envio->transportista) }}" class="text-decoration-none">
+                                {{ trim($envio->transportista->nombre.' '.$envio->transportista->apellido) }}
+                            </a>
+                        @else
+                            <span class="text-muted">Sin asignar</span>
+                        @endif
+                    </p>
                     <p class="mb-0 small text-muted">Registro actualizado: {{ $envio->updated_at?->format('d/m/Y H:i') ?? '—' }}</p>
                 </div>
             </div>

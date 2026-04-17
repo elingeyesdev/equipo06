@@ -109,6 +109,7 @@
                             <th class="ps-4">Código</th>
                             <th>Origen → Destino</th>
                             <th>Ubicación actual</th>
+                            <th>Responsable</th>
                             <th>Estado</th>
                             <th>Programado</th>
                             <th class="text-end pe-4">Acciones</th>
@@ -133,6 +134,15 @@
                                         <span class="badge rounded-pill {{ $envio->badgeValidacionLlegadaClass() }}" style="font-size: 0.72rem;">{{ $envio->etiquetaValidacionLlegada() }}</span>
                                     </div>
                                 </td>
+                                <td class="small">
+                                    @if ($envio->transportista)
+                                        <a href="{{ route('transportistas.show', $envio->transportista) }}" class="text-decoration-none">
+                                            {{ trim($envio->transportista->nombre.' '.$envio->transportista->apellido) }}
+                                        </a>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
                                 <td><span class="badge rounded-pill {{ $envio->badgeEstadoClass() }}">{{ $envio->etiquetaEstado() }}</span></td>
                                 <td class="text-muted small">{{ $envio->fecha_programada?->format('d/m/Y') ?? '—' }}</td>
                                 <td class="text-end pe-4">
@@ -150,7 +160,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-5">
+                                <td colspan="7" class="text-center text-muted py-5">
                                     <i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>
                                     No hay envíos registrados. Crea el primero para comenzar el seguimiento.
                                 </td>

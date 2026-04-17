@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Envio;
 use App\Models\Producto;
+use App\Models\Transportista;
 use App\Models\Ubicacion;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class EnvioController extends Controller
     public function index()
     {
         $envios = Envio::query()
-            ->with('ubicacionActual')
+            ->with(['ubicacionActual', 'transportista'])
             ->orderByDesc('fecha_programada')
             ->orderByDesc('fecha_creacion')
             ->orderByDesc('id')
@@ -39,8 +40,9 @@ class EnvioController extends Controller
         $cantidadesPrevias = [];
         $codigoPreview = Envio::previewSiguienteCodigoGuia();
         $ubicaciones = $this->ubicacionesParaFormulario();
+        $transportistas = $this->transportistasParaFormulario($envio);
 
-        return view('envios.create', compact('envio', 'estados', 'productos', 'cantidadesPrevias', 'codigoPreview', 'ubicaciones'));
+        return view('envios.create', compact('envio', 'estados', 'productos', 'cantidadesPrevias', 'codigoPreview', 'ubicaciones', 'transportistas'));
     }
 
     public function store(Request $request)
@@ -57,6 +59,7 @@ class EnvioController extends Controller
             'cantidades' => ['nullable', 'array'],
             'cantidades.*' => ['nullable', 'numeric', 'min:0', 'max:999999'],
             'ubicacion_actual_id' => ['nullable', 'integer', 'exists:ubicaciones,id'],
+            'transportista_id' => ['nullable', 'integer', 'exists:transportistas,id'],
         ], [], [
             'origen' => 'origen',
             'destino' => 'destino',
@@ -66,10 +69,12 @@ class EnvioController extends Controller
             'observaciones' => 'observaciones',
             'cantidades' => 'cantidades',
             'ubicacion_actual_id' => 'ubicación actual',
+            'transportista_id' => 'responsable de transporte',
         ]);
 
         $validated['observaciones'] = $request->filled('observaciones') ? trim($request->input('observaciones')) : null;
         $validated['ubicacion_actual_id'] = $request->filled('ubicacion_actual_id') ? (int) $request->input('ubicacion_actual_id') : null;
+        $validated['transportista_id'] = $request->filled('transportista_id') ? (int) $request->input('transportista_id') : null;
 
         $this->aplicarEstadoSegunUbicacionActual($validated);
 
@@ -90,6 +95,7 @@ class EnvioController extends Controller
     {
         $envio->load([
             'detalles.producto.productor',
+            'transportista',
             'asignaciones.transportista',
             'asignaciones.vehiculo',
             'ubicacionActual',
@@ -107,8 +113,9 @@ class EnvioController extends Controller
             ->mapWithKeys(fn ($d) => [$d->producto_id => $d->cantidad])
             ->all();
         $ubicaciones = $this->ubicacionesParaFormulario();
+        $transportistas = $this->transportistasParaFormulario($envio);
 
-        return view('envios.edit', compact('envio', 'estados', 'productos', 'cantidadesPrevias', 'ubicaciones'));
+        return view('envios.edit', compact('envio', 'estados', 'productos', 'cantidadesPrevias', 'ubicaciones', 'transportistas'));
     }
 
     public function update(Request $request, Envio $envio)
@@ -125,6 +132,7 @@ class EnvioController extends Controller
             'cantidades' => ['nullable', 'array'],
             'cantidades.*' => ['nullable', 'numeric', 'min:0', 'max:999999'],
             'ubicacion_actual_id' => ['nullable', 'integer', 'exists:ubicaciones,id'],
+            'transportista_id' => ['nullable', 'integer', 'exists:transportistas,id'],
         ], [], [
             'origen' => 'origen',
             'destino' => 'destino',
@@ -134,10 +142,12 @@ class EnvioController extends Controller
             'observaciones' => 'observaciones',
             'cantidades' => 'cantidades',
             'ubicacion_actual_id' => 'ubicación actual',
+            'transportista_id' => 'responsable de transporte',
         ]);
 
         $validated['observaciones'] = $request->filled('observaciones') ? trim($request->input('observaciones')) : null;
         $validated['ubicacion_actual_id'] = $request->filled('ubicacion_actual_id') ? (int) $request->input('ubicacion_actual_id') : null;
+        $validated['transportista_id'] = $request->filled('transportista_id') ? (int) $request->input('transportista_id') : null;
 
         $this->aplicarEstadoSegunUbicacionActual($validated);
 
@@ -170,6 +180,23 @@ class EnvioController extends Controller
     {
         return Ubicacion::query()
             ->orderBy('nombre_ubicacion')
+            ->get();
+    }
+
+    /**
+     * @return Collection<int, Transportista>
+     */
+    private function transportistasParaFormulario(Envio $envio)
+    {
+        return Transportista::query()
+            ->where(function ($q) use ($envio) {
+                $q->where('estado', 'activo');
+                if ($envio->exists && $envio->transportista_id) {
+                    $q->orWhere('id', $envio->transportista_id);
+                }
+            })
+            ->orderBy('nombre')
+            ->orderBy('apellido')
             ->get();
     }
 

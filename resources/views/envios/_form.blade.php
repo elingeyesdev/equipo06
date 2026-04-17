@@ -85,6 +85,24 @@
             </div>
         </div>
     @endisset
+
+    @isset($transportistas)
+        <div class="col-12">
+            <label for="transportista_id" class="form-label fw-medium">
+                <i class="bi bi-person-vcard text-primary me-1"></i>Responsable de transporte <span class="text-muted fw-normal">(opcional)</span>
+            </label>
+            <select id="transportista_id" name="transportista_id" class="form-select form-select-lg @error('transportista_id') is-invalid @enderror">
+                <option value="" @selected((string) old('transportista_id', $envio->transportista_id ?? '') === '')>Sin asignar</option>
+                @foreach ($transportistas as $t)
+                    <option value="{{ $t->id }}" @selected((string) old('transportista_id', $envio->transportista_id ?? '') === (string) $t->id)>
+                        {{ trim($t->nombre.' '.$t->apellido) }} — CI: {{ $t->carnet_identidad }}
+                    </option>
+                @endforeach
+            </select>
+            @error('transportista_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            <div class="form-text">Asociación simple del envío con un responsable (MVP ENT_2.3).</div>
+        </div>
+    @endisset
 </div>
 
 @if (isset($productos))

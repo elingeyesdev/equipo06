@@ -23,6 +23,7 @@ class Envio extends Model
         'fecha_programada',
         'observaciones',
         'ubicacion_actual_id',
+        'transportista_id',
     ];
 
     /**
@@ -130,6 +131,14 @@ class Envio extends Model
     public function ubicacionActual(): BelongsTo
     {
         return $this->belongsTo(Ubicacion::class, 'ubicacion_actual_id');
+    }
+
+    /**
+     * Responsable de transporte asignado de forma directa al envío (MVP ENT 2.3).
+     */
+    public function transportista(): BelongsTo
+    {
+        return $this->belongsTo(Transportista::class, 'transportista_id');
     }
 
     /**

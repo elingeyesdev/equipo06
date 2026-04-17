@@ -64,4 +64,12 @@ class Transportista extends Model
     {
         return $this->hasMany(AsignacionEnvio::class, 'transportista_id');
     }
+
+    /**
+     * Envíos asociados directamente al responsable (asignación MVP).
+     */
+    public function envios(): HasMany
+    {
+        return $this->hasMany(Envio::class, 'transportista_id');
+    }
 }
