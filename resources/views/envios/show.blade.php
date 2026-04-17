@@ -135,6 +135,61 @@
                 </div>
             </div>
         </div>
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom py-3 fw-semibold d-flex align-items-center gap-2">
+                    <i class="bi bi-clipboard2-check text-primary"></i> Conformidad de recibido (ENT 2.4)
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ route('envios.recepcion.conformidad', $envio) }}" method="POST">
+                        @csrf
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Check de recibido *</label>
+                                <div class="d-flex flex-wrap gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="conforme" id="conforme_si" value="1"
+                                               {{ old('conforme', $envio->recepcion?->conforme) === true || old('conforme', (int) ($envio->recepcion?->conforme ?? 1)) === 1 ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="conforme_si">Conforme</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="conforme" id="conforme_no" value="0"
+                                               {{ old('conforme', $envio->recepcion?->conforme) === false || (string) old('conforme') === '0' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="conforme_no">No conforme</label>
+                                    </div>
+                                </div>
+                                @error('conforme')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label for="observaciones_recepcion" class="form-label fw-medium">Observación <span class="text-muted fw-normal">(opcional)</span></label>
+                                <textarea id="observaciones_recepcion" name="observaciones" rows="3"
+                                          class="form-control @error('observaciones') is-invalid @enderror"
+                                          placeholder="Detalle breve si la entrega llegó observada...">{{ old('observaciones', $envio->recepcion?->observaciones) }}</textarea>
+                                @error('observaciones')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-12 d-flex flex-wrap align-items-center gap-3">
+                                <button type="submit" class="btn btn-envio-main d-inline-flex align-items-center gap-2">
+                                    <i class="bi bi-check2-circle"></i> Guardar conformidad
+                                </button>
+                                @if ($envio->recepcion)
+                                    <span class="small text-muted">
+                                        Último registro:
+                                        @if ($envio->recepcion->conforme === true)
+                                            <span class="badge text-bg-success">Conforme</span>
+                                        @elseif ($envio->recepcion->conforme === false)
+                                            <span class="badge text-bg-warning text-dark">No conforme</span>
+                                        @else
+                                            <span class="badge text-bg-secondary">Pendiente</span>
+                                        @endif
+                                        · {{ $envio->recepcion->updated_at?->format('d/m/Y H:i') ?? '—' }}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="mt-4 d-flex flex-wrap gap-2">

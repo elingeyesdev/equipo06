@@ -96,6 +96,7 @@ class EnvioController extends Controller
         $envio->load([
             'detalles.producto.productor',
             'transportista',
+            'recepcion',
             'asignaciones.transportista',
             'asignaciones.vehiculo',
             'ubicacionActual',

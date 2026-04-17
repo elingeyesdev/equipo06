@@ -16,6 +16,7 @@ class Recepcion extends Model
         'envio_id',
         'fecha_llegada',
         'estado_entrega',
+        'conforme',
         'observaciones',
     ];
 
@@ -26,6 +27,7 @@ class Recepcion extends Model
     {
         return [
             'fecha_llegada' => 'datetime',
+            'conforme' => 'boolean',
         ];
     }
 
