@@ -38,9 +38,19 @@
         @error('direccion')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
 
+    <div class="col-12">
+        <label class="form-label fw-medium d-flex align-items-center gap-2">
+            <i class="bi bi-map text-primary"></i>Mapa <span class="text-muted fw-normal">(clic para colocar o mover el pin)</span>
+        </label>
+        <p class="small text-muted mb-2">Centrado en Santa Cruz, Bolivia. Cada clic actualiza latitud y longitud.</p>
+        <div class="map-ubicacion-wrap mb-1">
+            <div id="map-picker-ubicacion" role="application" aria-label="Mapa para elegir coordenadas"></div>
+        </div>
+    </div>
+
     <div class="col-md-6">
         <label for="latitud" class="form-label fw-medium">
-            <i class="bi bi-compass text-primary me-1"></i>Latitud <span class="text-muted fw-normal">(opcional)</span>
+            <i class="bi bi-compass text-primary me-1"></i>Latitud <span class="text-muted fw-normal">(opcional · apoyo técnico)</span>
         </label>
         <input id="latitud" name="latitud" type="text" inputmode="decimal"
                class="form-control @error('latitud') is-invalid @enderror"
@@ -51,7 +61,7 @@
 
     <div class="col-md-6">
         <label for="longitud" class="form-label fw-medium">
-            <i class="bi bi-compass text-primary me-1"></i>Longitud <span class="text-muted fw-normal">(opcional)</span>
+            <i class="bi bi-compass text-primary me-1"></i>Longitud <span class="text-muted fw-normal">(opcional · apoyo técnico)</span>
         </label>
         <input id="longitud" name="longitud" type="text" inputmode="decimal"
                class="form-control @error('longitud') is-invalid @enderror"

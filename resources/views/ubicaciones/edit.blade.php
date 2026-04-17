@@ -44,4 +44,6 @@
             </form>
         </div>
     </div>
+
+    @include('ubicaciones._leaflet_map')
 @endsection

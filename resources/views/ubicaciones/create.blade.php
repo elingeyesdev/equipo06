@@ -21,7 +21,7 @@
         <h1 class="h3 mb-2 d-flex align-items-center gap-2">
             <span aria-hidden="true">📍</span> Registrar ubicación
         </h1>
-        <p class="text-muted mb-0">Datos geográficos o de referencia para rutas y puntos de control (sin seguimiento en tiempo real).</p>
+        <p class="text-muted mb-0">Datos geográficos o de referencia para rutas y puntos de control. Use el mapa o las coordenadas (sin seguimiento en tiempo real).</p>
     </div>
 
     <div class="card shadow-sm border-0">
@@ -38,4 +38,6 @@
             </form>
         </div>
     </div>
+
+    @include('ubicaciones._leaflet_map')
 @endsection
