@@ -47,6 +47,14 @@ class TransportistaController extends Controller
 
     public function show(Transportista $transportista)
     {
+        $transportista->load([
+            'envios' => function ($q) {
+                $q->orderByDesc('fecha_programada')
+                    ->orderByDesc('fecha_creacion')
+                    ->orderByDesc('id');
+            },
+        ]);
+
         return view('transportistas.show', compact('transportista'));
     }
 
