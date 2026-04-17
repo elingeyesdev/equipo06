@@ -44,6 +44,11 @@ class RecepcionController extends Controller
             ]
         );
 
+        // Cierre lógico MVP: solo marcar entregado cuando la recepción es conforme y completa.
+        if ($conforme && $resultado === 'completa' && $envio->estado !== 'entregado') {
+            $envio->update(['estado' => 'entregado']);
+        }
+
         return redirect()
             ->route('envios.show', $envio)
             ->with('status', 'Conformidad y validación de cantidad registradas correctamente.');
