@@ -142,6 +142,14 @@ class Envio extends Model
     }
 
     /**
+     * Registro de recepción en destino (ENT 2.4, relación 1:1).
+     */
+    public function recepcion(): HasOne
+    {
+        return $this->hasOne(Recepcion::class, 'envio_id');
+    }
+
+    /**
      * Asignación vigente (la más reciente por fecha).
      */
     public function asignacionActual(): HasOne
