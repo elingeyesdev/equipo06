@@ -5,6 +5,7 @@ use App\Http\Controllers\EventoProduccionController;
 use App\Http\Controllers\LoteController;
 use App\Http\Controllers\ProducerController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\UbicacionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ProducerController::class, 'index']);
@@ -35,4 +36,8 @@ Route::get('/lotes/{lote}', [LoteController::class, 'show'])->name('lotes.show')
 
 Route::resource('envios', EnvioController::class)->parameters([
     'envios' => 'envio',
+]);
+
+Route::resource('ubicaciones', UbicacionController::class)->parameters([
+    'ubicaciones' => 'ubicacion',
 ]);

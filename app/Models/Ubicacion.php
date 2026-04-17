@@ -55,6 +55,16 @@ class Ubicacion extends Model
         return self::tiposPuntoDisponibles()[$this->tipo] ?? ucfirst((string) $this->tipo);
     }
 
+    public function badgeTipoClass(): string
+    {
+        return match ($this->tipo) {
+            'origen' => 'text-bg-primary',
+            'destino' => 'text-bg-success',
+            'punto_control' => 'text-bg-info text-dark',
+            default => 'text-bg-light text-dark border',
+        };
+    }
+
     /**
      * Vínculo opcional con un envío (se usará cuando el módulo registre puntos por guía).
      */
