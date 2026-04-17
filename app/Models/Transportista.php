@@ -6,6 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Responsable de transporte (transportista): datos personales y licencia.
+ *
+ * Carnet de identidad: identificador personal (no usar nomenclatura DNI).
+ * Teléfono: formato Bolivia recomendado +591 seguido de 8 dígitos (+591XXXXXXXX).
+ *
+ * Las relaciones con vehículos y asignaciones de envío se usarán en entregables posteriores.
+ */
 class Transportista extends Model
 {
     use HasFactory;
@@ -14,11 +22,28 @@ class Transportista extends Model
 
     protected $fillable = [
         'nombre',
-        'documento_identidad',
+        'apellido',
+        'carnet_identidad',
         'telefono',
         'email',
-        'activo',
+        'licencia',
+        'tipo_licencia',
+        'fecha_vencimiento_licencia',
+        'estado',
     ];
+
+    /**
+     * Estados del registro del transportista (ciclo operativo / alta en sistema).
+     *
+     * @return array<string, string>
+     */
+    public static function estadosDisponibles(): array
+    {
+        return [
+            'activo' => 'Activo',
+            'inactivo' => 'Inactivo',
+        ];
+    }
 
     /**
      * @return array<string, string>
@@ -26,7 +51,7 @@ class Transportista extends Model
     protected function casts(): array
     {
         return [
-            'activo' => 'boolean',
+            'fecha_vencimiento_licencia' => 'date',
         ];
     }
 
