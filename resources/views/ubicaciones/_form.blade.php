@@ -28,13 +28,13 @@
 
     <div class="col-12">
         <label for="direccion" class="form-label fw-medium">
-            <i class="bi bi-pin-map text-primary me-1"></i>Dirección <span class="text-muted fw-normal">(opcional)</span>
+            <i class="bi bi-pin-map text-primary me-1"></i>Dirección *
         </label>
         <input id="direccion" name="direccion" type="text"
                class="form-control @error('direccion') is-invalid @enderror"
                value="{{ old('direccion', $ubicacion->direccion ?? '') }}"
-               placeholder="Referencia o dirección textual"
-               maxlength="255">
+               placeholder="Dirección completa o referencia para ubicar el punto"
+               maxlength="255" required>
         @error('direccion')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
 
@@ -50,7 +50,7 @@
 
     <div class="col-md-6">
         <label for="latitud" class="form-label fw-medium">
-            <i class="bi bi-compass text-primary me-1"></i>Latitud <span class="text-muted fw-normal">(opcional · apoyo técnico)</span>
+            <i class="bi bi-compass text-primary me-1"></i>Latitud <span class="text-muted fw-normal">(opcional)</span>
         </label>
         <input id="latitud" name="latitud" type="text" inputmode="decimal"
                class="form-control @error('latitud') is-invalid @enderror"
@@ -61,7 +61,7 @@
 
     <div class="col-md-6">
         <label for="longitud" class="form-label fw-medium">
-            <i class="bi bi-compass text-primary me-1"></i>Longitud <span class="text-muted fw-normal">(opcional · apoyo técnico)</span>
+            <i class="bi bi-compass text-primary me-1"></i>Longitud <span class="text-muted fw-normal">(opcional)</span>
         </label>
         <input id="longitud" name="longitud" type="text" inputmode="decimal"
                class="form-control @error('longitud') is-invalid @enderror"

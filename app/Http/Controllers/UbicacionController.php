@@ -38,7 +38,7 @@ class UbicacionController extends Controller
         $validated = $request->validate([
             'nombre_ubicacion' => ['required', 'string', 'max:160'],
             'tipo' => ['required', 'string', Rule::in($tiposKeys)],
-            'direccion' => ['nullable', 'string', 'max:255'],
+            'direccion' => ['required', 'string', 'max:255'],
             'latitud' => ['nullable', 'numeric', 'between:-90,90'],
             'longitud' => ['nullable', 'numeric', 'between:-180,180'],
             'descripcion' => ['nullable', 'string', 'max:5000'],
@@ -51,7 +51,7 @@ class UbicacionController extends Controller
             'descripcion' => 'descripción',
         ]);
 
-        $validated['direccion'] = $request->filled('direccion') ? trim((string) $request->input('direccion')) : null;
+        $validated['direccion'] = trim((string) $validated['direccion']);
         $validated['descripcion'] = $request->filled('descripcion') ? trim((string) $request->input('descripcion')) : null;
         $validated['latitud'] = $request->filled('latitud') ? $validated['latitud'] : null;
         $validated['longitud'] = $request->filled('longitud') ? $validated['longitud'] : null;
@@ -84,7 +84,7 @@ class UbicacionController extends Controller
         $validated = $request->validate([
             'nombre_ubicacion' => ['required', 'string', 'max:160'],
             'tipo' => ['required', 'string', Rule::in($tiposKeys)],
-            'direccion' => ['nullable', 'string', 'max:255'],
+            'direccion' => ['required', 'string', 'max:255'],
             'latitud' => ['nullable', 'numeric', 'between:-90,90'],
             'longitud' => ['nullable', 'numeric', 'between:-180,180'],
             'descripcion' => ['nullable', 'string', 'max:5000'],
@@ -97,7 +97,7 @@ class UbicacionController extends Controller
             'descripcion' => 'descripción',
         ]);
 
-        $validated['direccion'] = $request->filled('direccion') ? trim((string) $request->input('direccion')) : null;
+        $validated['direccion'] = trim((string) $validated['direccion']);
         $validated['descripcion'] = $request->filled('descripcion') ? trim((string) $request->input('descripcion')) : null;
         $validated['latitud'] = $request->filled('latitud') ? $validated['latitud'] : null;
         $validated['longitud'] = $request->filled('longitud') ? $validated['longitud'] : null;
