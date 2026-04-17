@@ -13,6 +13,8 @@ class Ubicacion extends Model
     protected $table = 'ubicaciones';
 
     protected $fillable = [
+        'ruta_id',
+        'orden',
         'nombre_ubicacion',
         'tipo',
         'direccion',
@@ -28,6 +30,7 @@ class Ubicacion extends Model
     protected function casts(): array
     {
         return [
+            'orden' => 'integer',
             'latitud' => 'decimal:7',
             'longitud' => 'decimal:7',
         ];
@@ -58,5 +61,10 @@ class Ubicacion extends Model
     public function envio(): BelongsTo
     {
         return $this->belongsTo(Envio::class, 'envio_id');
+    }
+
+    public function ruta(): BelongsTo
+    {
+        return $this->belongsTo(Ruta::class, 'ruta_id');
     }
 }

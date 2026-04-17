@@ -96,6 +96,14 @@ class Envio extends Model
     }
 
     /**
+     * Rutas planificadas o de seguimiento vinculadas al envío (ENT 2.2).
+     */
+    public function rutas(): HasMany
+    {
+        return $this->hasMany(Ruta::class, 'envio_id');
+    }
+
+    /**
      * Vista previa del siguiente código de guía (sin bloqueo). Formato: GUIA-2026-0001
      */
     public static function previewSiguienteCodigoGuia(): string
