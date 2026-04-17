@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Envio;
 use App\Models\Producto;
+use App\Models\Ubicacion;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,7 @@ class EnvioController extends Controller
     public function index()
     {
         $envios = Envio::query()
+            ->with('ubicacionActual')
             ->orderByDesc('fecha_programada')
             ->orderByDesc('fecha_creacion')
             ->orderByDesc('id')
@@ -36,8 +38,9 @@ class EnvioController extends Controller
         $productos = $this->productosParaFormulario($envio);
         $cantidadesPrevias = [];
         $codigoPreview = Envio::previewSiguienteCodigoGuia();
+        $ubicaciones = $this->ubicacionesParaFormulario();
 
-        return view('envios.create', compact('envio', 'estados', 'productos', 'cantidadesPrevias', 'codigoPreview'));
+        return view('envios.create', compact('envio', 'estados', 'productos', 'cantidadesPrevias', 'codigoPreview', 'ubicaciones'));
     }
 
     public function store(Request $request)
@@ -53,6 +56,7 @@ class EnvioController extends Controller
             'observaciones' => ['nullable', 'string', 'max:5000'],
             'cantidades' => ['nullable', 'array'],
             'cantidades.*' => ['nullable', 'numeric', 'min:0', 'max:999999'],
+            'ubicacion_actual_id' => ['nullable', 'integer', 'exists:ubicaciones,id'],
         ], [], [
             'origen' => 'origen',
             'destino' => 'destino',
@@ -61,9 +65,11 @@ class EnvioController extends Controller
             'fecha_programada' => 'fecha programada',
             'observaciones' => 'observaciones',
             'cantidades' => 'cantidades',
+            'ubicacion_actual_id' => 'ubicación actual',
         ]);
 
         $validated['observaciones'] = $request->filled('observaciones') ? trim($request->input('observaciones')) : null;
+        $validated['ubicacion_actual_id'] = $request->filled('ubicacion_actual_id') ? (int) $request->input('ubicacion_actual_id') : null;
 
         $detalles = $this->detallesValidosDesdeRequest($request, null);
 
@@ -84,6 +90,7 @@ class EnvioController extends Controller
             'detalles.producto.productor',
             'asignaciones.transportista',
             'asignaciones.vehiculo',
+            'ubicacionActual',
         ]);
 
         return view('envios.show', compact('envio'));
@@ -97,8 +104,9 @@ class EnvioController extends Controller
             ->get()
             ->mapWithKeys(fn ($d) => [$d->producto_id => $d->cantidad])
             ->all();
+        $ubicaciones = $this->ubicacionesParaFormulario();
 
-        return view('envios.edit', compact('envio', 'estados', 'productos', 'cantidadesPrevias'));
+        return view('envios.edit', compact('envio', 'estados', 'productos', 'cantidadesPrevias', 'ubicaciones'));
     }
 
     public function update(Request $request, Envio $envio)
@@ -114,6 +122,7 @@ class EnvioController extends Controller
             'observaciones' => ['nullable', 'string', 'max:5000'],
             'cantidades' => ['nullable', 'array'],
             'cantidades.*' => ['nullable', 'numeric', 'min:0', 'max:999999'],
+            'ubicacion_actual_id' => ['nullable', 'integer', 'exists:ubicaciones,id'],
         ], [], [
             'origen' => 'origen',
             'destino' => 'destino',
@@ -122,9 +131,11 @@ class EnvioController extends Controller
             'fecha_programada' => 'fecha programada',
             'observaciones' => 'observaciones',
             'cantidades' => 'cantidades',
+            'ubicacion_actual_id' => 'ubicación actual',
         ]);
 
         $validated['observaciones'] = $request->filled('observaciones') ? trim($request->input('observaciones')) : null;
+        $validated['ubicacion_actual_id'] = $request->filled('ubicacion_actual_id') ? (int) $request->input('ubicacion_actual_id') : null;
 
         $detalles = $this->detallesValidosDesdeRequest($request, $envio);
 
@@ -146,6 +157,16 @@ class EnvioController extends Controller
         return redirect()
             ->route('envios.index')
             ->with('status', 'Envío '.$codigo.' eliminado correctamente.');
+    }
+
+    /**
+     * @return Collection<int, Ubicacion>
+     */
+    private function ubicacionesParaFormulario()
+    {
+        return Ubicacion::query()
+            ->orderBy('nombre_ubicacion')
+            ->get();
     }
 
     /**

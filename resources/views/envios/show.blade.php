@@ -33,7 +33,20 @@
                 <div class="card-body p-4">
                     <h2 class="h6 text-uppercase text-muted mb-3">Ruta</h2>
                     <p class="mb-2"><i class="bi bi-geo-alt text-primary me-2"></i><strong>Origen</strong><br><span class="text-muted">{{ $envio->origen }}</span></p>
-                    <p class="mb-0"><i class="bi bi-geo-alt-fill text-primary me-2"></i><strong>Destino</strong><br><span class="text-muted">{{ $envio->destino }}</span></p>
+                    <p class="mb-3"><i class="bi bi-geo-alt-fill text-primary me-2"></i><strong>Destino</strong><br><span class="text-muted">{{ $envio->destino }}</span></p>
+                    <hr class="text-muted opacity-25 my-3">
+                    <p class="mb-1 small text-uppercase text-muted">Ubicación actual (seguimiento)</p>
+                    @if ($envio->ubicacionActual)
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <span class="badge rounded-pill {{ $envio->ubicacionActual->badgeTipoClass() }}">{{ $envio->ubicacionActual->etiquetaTipo() }}</span>
+                            <a href="{{ route('ubicaciones.show', $envio->ubicacionActual) }}" class="fw-semibold text-decoration-none">{{ $envio->ubicacionActual->nombre_ubicacion }}</a>
+                        </div>
+                        @if ($envio->ubicacionActual->direccion)
+                            <p class="small text-muted mb-0 mt-2">{{ $envio->ubicacionActual->direccion }}</p>
+                        @endif
+                    @else
+                        <p class="text-muted fst-italic mb-0 small">Sin ubicación actual asignada. Asígnala al editar el envío.</p>
+                    @endif
                 </div>
             </div>
         </div>

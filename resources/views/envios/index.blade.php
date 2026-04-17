@@ -108,6 +108,7 @@
                         <tr>
                             <th class="ps-4">Código</th>
                             <th>Origen → Destino</th>
+                            <th>Ubicación actual</th>
                             <th>Estado</th>
                             <th>Programado</th>
                             <th class="text-end pe-4">Acciones</th>
@@ -121,6 +122,13 @@
                                     <div class="small text-muted text-truncate" style="max-width: 22rem;" title="{{ $envio->origen }} → {{ $envio->destino }}">
                                         {{ $envio->origen }} → {{ $envio->destino }}
                                     </div>
+                                </td>
+                                <td class="small">
+                                    @if ($envio->ubicacionActual)
+                                        <a href="{{ route('ubicaciones.show', $envio->ubicacionActual) }}" class="text-decoration-none text-truncate d-inline-block" style="max-width: 12rem;" title="{{ $envio->ubicacionActual->nombre_ubicacion }}">{{ $envio->ubicacionActual->nombre_ubicacion }}</a>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
                                 </td>
                                 <td><span class="badge rounded-pill {{ $envio->badgeEstadoClass() }}">{{ $envio->etiquetaEstado() }}</span></td>
                                 <td class="text-muted small">{{ $envio->fecha_programada?->format('d/m/Y') ?? '—' }}</td>
@@ -139,7 +147,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-5">
+                                <td colspan="6" class="text-center text-muted py-5">
                                     <i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>
                                     No hay envíos registrados. Crea el primero para comenzar el seguimiento.
                                 </td>

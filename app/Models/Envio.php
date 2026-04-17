@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -21,6 +22,7 @@ class Envio extends Model
         'fecha_creacion',
         'fecha_programada',
         'observaciones',
+        'ubicacion_actual_id',
     ];
 
     /**
@@ -70,6 +72,14 @@ class Envio extends Model
     public function detalles(): HasMany
     {
         return $this->hasMany(DetalleEnvio::class, 'envio_id');
+    }
+
+    /**
+     * Punto geográfico registrado como posición actual del envío (base para seguimiento logístico).
+     */
+    public function ubicacionActual(): BelongsTo
+    {
+        return $this->belongsTo(Ubicacion::class, 'ubicacion_actual_id');
     }
 
     /**

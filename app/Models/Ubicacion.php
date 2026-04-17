@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Ubicacion extends Model
 {
@@ -76,5 +77,13 @@ class Ubicacion extends Model
     public function ruta(): BelongsTo
     {
         return $this->belongsTo(Ruta::class, 'ruta_id');
+    }
+
+    /**
+     * Envíos que tienen esta ubicación como posición actual.
+     */
+    public function enviosComoUbicacionActual(): HasMany
+    {
+        return $this->hasMany(Envio::class, 'ubicacion_actual_id');
     }
 }

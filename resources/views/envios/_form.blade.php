@@ -64,6 +64,24 @@
                   placeholder="Instrucciones de entrega, restricciones de horario, contacto en destino…">{{ old('observaciones', $envio->observaciones ?? '') }}</textarea>
         @error('observaciones')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
+
+    @isset($ubicaciones)
+        <div class="col-12">
+            <label for="ubicacion_actual_id" class="form-label fw-medium">
+                <i class="bi bi-crosshair text-primary me-1"></i>Ubicación actual <span class="text-muted fw-normal">(opcional)</span>
+            </label>
+            <select id="ubicacion_actual_id" name="ubicacion_actual_id" class="form-select form-select-lg @error('ubicacion_actual_id') is-invalid @enderror">
+                <option value="" @selected((string) old('ubicacion_actual_id', $envio->ubicacion_actual_id ?? '') === '')>Sin asignar</option>
+                @foreach ($ubicaciones as $u)
+                    <option value="{{ $u->id }}" @selected((string) old('ubicacion_actual_id', $envio->ubicacion_actual_id ?? '') === (string) $u->id)>
+                        {{ $u->nombre_ubicacion }} — {{ $u->etiquetaTipo() }}
+                    </option>
+                @endforeach
+            </select>
+            @error('ubicacion_actual_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            <div class="form-text">Registro manual del punto de control o posición de referencia (sin GPS en tiempo real).</div>
+        </div>
+    @endisset
 </div>
 
 @if (isset($productos))
