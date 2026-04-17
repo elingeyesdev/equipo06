@@ -79,7 +79,10 @@
                 @endforeach
             </select>
             @error('ubicacion_actual_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            <div class="form-text">Registro manual del punto de control o posición de referencia (sin GPS en tiempo real).</div>
+            <div class="form-text">
+                Registro manual del punto de control o posición de referencia (sin GPS en tiempo real).
+                <span class="d-block mt-1">Si elige una ubicación de tipo <strong>destino</strong>, al guardar el envío pasará a <strong>Entregado</strong>. Si es <strong>punto de control</strong> y el estado era pendiente o asignado, pasará a <strong>En tránsito</strong>.</span>
+            </div>
         </div>
     @endisset
 </div>

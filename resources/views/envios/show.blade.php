@@ -27,6 +27,15 @@
         <span class="badge rounded-pill {{ $envio->badgeEstadoClass() }} px-3 py-2 fs-6">{{ $envio->etiquetaEstado() }}</span>
     </div>
 
+    <div class="alert border-0 shadow-sm d-flex align-items-start gap-3 mb-4" role="status" style="background: linear-gradient(90deg, #eef7fc 0%, #f2fbf6 100%); border: 1px solid rgba(0,0,0,0.06) !important;">
+        <span class="rounded-3 bg-white p-2 shadow-sm"><i class="bi bi-signpost-2 text-primary fs-4"></i></span>
+        <div class="flex-grow-1">
+            <div class="fw-semibold text-dark mb-2">Seguimiento de llegada</div>
+            <span class="badge rounded-pill {{ $envio->badgeValidacionLlegadaClass() }} px-3 py-2 fs-6">{{ $envio->etiquetaValidacionLlegada() }}</span>
+            <p class="small text-muted mb-0 mt-2">Basado en la <strong>ubicación actual</strong> y su <strong>tipo</strong> (origen, punto intermedio o destino). Sin GPS ni distancias.</p>
+        </div>
+    </div>
+
     <div class="row g-4">
         <div class="col-lg-6">
             <div class="card shadow-sm border-0 h-100">

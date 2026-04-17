@@ -129,6 +129,9 @@
                                     @else
                                         <span class="text-muted">—</span>
                                     @endif
+                                    <div class="mt-1">
+                                        <span class="badge rounded-pill {{ $envio->badgeValidacionLlegadaClass() }}" style="font-size: 0.72rem;">{{ $envio->etiquetaValidacionLlegada() }}</span>
+                                    </div>
                                 </td>
                                 <td><span class="badge rounded-pill {{ $envio->badgeEstadoClass() }}">{{ $envio->etiquetaEstado() }}</span></td>
                                 <td class="text-muted small">{{ $envio->fecha_programada?->format('d/m/Y') ?? '—' }}</td>

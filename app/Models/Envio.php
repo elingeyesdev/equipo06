@@ -69,6 +69,56 @@ class Envio extends Model
         };
     }
 
+    /**
+     * Mensaje MVP según ubicación actual (tipo de punto) y estado del envío. Sin GPS ni distancias.
+     */
+    public function etiquetaValidacionLlegada(): string
+    {
+        if ($this->estado === 'cancelado') {
+            return 'Envío cancelado';
+        }
+        if ($this->estado === 'entregado') {
+            return 'Llegó a destino final';
+        }
+        if (! $this->ubicacion_actual_id) {
+            return 'En tránsito';
+        }
+        if (! $this->relationLoaded('ubicacionActual')) {
+            $this->load('ubicacionActual');
+        }
+        $tipo = $this->ubicacionActual?->tipo;
+
+        return match ($tipo) {
+            'destino' => 'Llegó a destino final',
+            'punto_control' => 'Llegó a punto intermedio',
+            'origen' => 'Ubicación en origen',
+            default => 'En tránsito',
+        };
+    }
+
+    public function badgeValidacionLlegadaClass(): string
+    {
+        if ($this->estado === 'cancelado') {
+            return 'text-bg-secondary';
+        }
+        if ($this->estado === 'entregado') {
+            return 'text-bg-success';
+        }
+        if (! $this->ubicacion_actual_id) {
+            return 'text-bg-warning text-dark';
+        }
+        if (! $this->relationLoaded('ubicacionActual')) {
+            $this->load('ubicacionActual');
+        }
+
+        return match ($this->ubicacionActual?->tipo) {
+            'destino' => 'text-bg-success',
+            'punto_control' => 'text-bg-info text-dark',
+            'origen' => 'text-bg-primary',
+            default => 'text-bg-light text-dark border',
+        };
+    }
+
     public function detalles(): HasMany
     {
         return $this->hasMany(DetalleEnvio::class, 'envio_id');

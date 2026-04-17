@@ -71,6 +71,8 @@ class EnvioController extends Controller
         $validated['observaciones'] = $request->filled('observaciones') ? trim($request->input('observaciones')) : null;
         $validated['ubicacion_actual_id'] = $request->filled('ubicacion_actual_id') ? (int) $request->input('ubicacion_actual_id') : null;
 
+        $this->aplicarEstadoSegunUbicacionActual($validated);
+
         $detalles = $this->detallesValidosDesdeRequest($request, null);
 
         DB::transaction(function () use ($validated, $detalles) {
@@ -137,6 +139,8 @@ class EnvioController extends Controller
         $validated['observaciones'] = $request->filled('observaciones') ? trim($request->input('observaciones')) : null;
         $validated['ubicacion_actual_id'] = $request->filled('ubicacion_actual_id') ? (int) $request->input('ubicacion_actual_id') : null;
 
+        $this->aplicarEstadoSegunUbicacionActual($validated);
+
         $detalles = $this->detallesValidosDesdeRequest($request, $envio);
 
         DB::transaction(function () use ($envio, $validated, $detalles) {
@@ -167,6 +171,34 @@ class EnvioController extends Controller
         return Ubicacion::query()
             ->orderBy('nombre_ubicacion')
             ->get();
+    }
+
+    /**
+     * Ajuste MVP del estado según el tipo de la ubicación actual (IDs / tipo en BD, sin GPS).
+     *
+     * @param  array<string, mixed>  $validated
+     */
+    private function aplicarEstadoSegunUbicacionActual(array &$validated): void
+    {
+        if (($validated['estado'] ?? '') === 'cancelado') {
+            return;
+        }
+        $uid = $validated['ubicacion_actual_id'] ?? null;
+        if (! $uid) {
+            return;
+        }
+        $ubicacion = Ubicacion::query()->find($uid);
+        if (! $ubicacion) {
+            return;
+        }
+        if ($ubicacion->tipo === 'destino') {
+            $validated['estado'] = 'entregado';
+
+            return;
+        }
+        if ($ubicacion->tipo === 'punto_control' && in_array($validated['estado'] ?? '', ['pendiente', 'asignado'], true)) {
+            $validated['estado'] = 'en_transito';
+        }
     }
 
     /**
