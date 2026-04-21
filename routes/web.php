@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EnvioController;
 use App\Http\Controllers\EventoProduccionController;
 use App\Http\Controllers\LoteController;
@@ -10,42 +11,55 @@ use App\Http\Controllers\TransportistaController;
 use App\Http\Controllers\UbicacionController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [ProducerController::class, 'index']);
+Route::get('/', function () {
+    return auth()->check()
+        ? redirect()->route('productores.index')
+        : redirect()->route('login');
+});
 
-Route::resource('productores', ProducerController::class)->parameters([
-    'productores' => 'producer',
-]);
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
+});
 
-Route::resource('productos', ProductoController::class)->parameters([
-    'productos' => 'producto',
-]);
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/eventos-produccion', [EventoProduccionController::class, 'index'])->name('eventos-produccion.index');
-Route::get('/eventos-produccion/create', [EventoProduccionController::class, 'create'])->name('eventos-produccion.create');
-Route::post('/eventos-produccion', [EventoProduccionController::class, 'store'])->name('eventos-produccion.store');
-Route::get('/eventos-produccion/{evento_produccion}/edit', [EventoProduccionController::class, 'edit'])->name('eventos-produccion.edit');
-Route::put('/eventos-produccion/{evento_produccion}', [EventoProduccionController::class, 'update'])->name('eventos-produccion.update');
-Route::post('/eventos-produccion/{evento_produccion}/completar', [EventoProduccionController::class, 'completar'])->name('eventos-produccion.completar');
-Route::delete('/eventos-produccion/{evento_produccion}', [EventoProduccionController::class, 'destroy'])->name('eventos-produccion.destroy');
+    Route::resource('productores', ProducerController::class)->parameters([
+        'productores' => 'producer',
+    ]);
 
-Route::get('/lotes', [LoteController::class, 'index'])->name('lotes.index');
-Route::get('/lotes/create', [LoteController::class, 'create'])->name('lotes.create');
-Route::post('/lotes', [LoteController::class, 'store'])->name('lotes.store');
-Route::get('/lotes/{lote}/edit', [LoteController::class, 'edit'])->name('lotes.edit');
-Route::put('/lotes/{lote}', [LoteController::class, 'update'])->name('lotes.update');
-Route::delete('/lotes/{lote}', [LoteController::class, 'destroy'])->name('lotes.destroy');
-Route::get('/lotes/{lote}', [LoteController::class, 'show'])->name('lotes.show');
+    Route::resource('productos', ProductoController::class)->parameters([
+        'productos' => 'producto',
+    ]);
 
-Route::resource('envios', EnvioController::class)->parameters([
-    'envios' => 'envio',
-]);
-Route::post('/envios/{envio}/recepcion-conformidad', [RecepcionController::class, 'guardarConformidad'])
-    ->name('envios.recepcion.conformidad');
+    Route::get('/eventos-produccion', [EventoProduccionController::class, 'index'])->name('eventos-produccion.index');
+    Route::get('/eventos-produccion/create', [EventoProduccionController::class, 'create'])->name('eventos-produccion.create');
+    Route::post('/eventos-produccion', [EventoProduccionController::class, 'store'])->name('eventos-produccion.store');
+    Route::get('/eventos-produccion/{evento_produccion}/edit', [EventoProduccionController::class, 'edit'])->name('eventos-produccion.edit');
+    Route::put('/eventos-produccion/{evento_produccion}', [EventoProduccionController::class, 'update'])->name('eventos-produccion.update');
+    Route::post('/eventos-produccion/{evento_produccion}/completar', [EventoProduccionController::class, 'completar'])->name('eventos-produccion.completar');
+    Route::delete('/eventos-produccion/{evento_produccion}', [EventoProduccionController::class, 'destroy'])->name('eventos-produccion.destroy');
 
-Route::resource('ubicaciones', UbicacionController::class)->parameters([
-    'ubicaciones' => 'ubicacion',
-]);
+    Route::get('/lotes', [LoteController::class, 'index'])->name('lotes.index');
+    Route::get('/lotes/create', [LoteController::class, 'create'])->name('lotes.create');
+    Route::post('/lotes', [LoteController::class, 'store'])->name('lotes.store');
+    Route::get('/lotes/{lote}/edit', [LoteController::class, 'edit'])->name('lotes.edit');
+    Route::put('/lotes/{lote}', [LoteController::class, 'update'])->name('lotes.update');
+    Route::delete('/lotes/{lote}', [LoteController::class, 'destroy'])->name('lotes.destroy');
+    Route::get('/lotes/{lote}', [LoteController::class, 'show'])->name('lotes.show');
 
-Route::resource('transportistas', TransportistaController::class)->parameters([
-    'transportistas' => 'transportista',
-]);
+    Route::resource('envios', EnvioController::class)->parameters([
+        'envios' => 'envio',
+    ]);
+    Route::post('/envios/{envio}/recepcion-conformidad', [RecepcionController::class, 'guardarConformidad'])
+        ->name('envios.recepcion.conformidad');
+
+    Route::resource('ubicaciones', UbicacionController::class)->parameters([
+        'ubicaciones' => 'ubicacion',
+    ]);
+
+    Route::resource('transportistas', TransportistaController::class)->parameters([
+        'transportistas' => 'transportista',
+    ]);
+});

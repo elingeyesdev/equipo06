@@ -41,6 +41,12 @@
                     <a class="nav-link d-flex align-items-center gap-1 px-3 py-2 rounded {{ request()->routeIs('ubicaciones.*') ? 'active bg-white bg-opacity-25' : '' }}" href="{{ route('ubicaciones.index') }}">
                         <i class="bi bi-geo-alt"></i> Ubicaciones
                     </a>
+                    <form action="{{ route('logout') }}" method="POST" class="d-flex align-items-center ms-lg-2">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-light border-0 rounded-pill px-3 py-2 d-inline-flex align-items-center gap-1">
+                            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
