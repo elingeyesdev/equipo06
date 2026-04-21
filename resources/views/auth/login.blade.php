@@ -54,17 +54,21 @@
             max-width: 33rem;
         }
         .hero-logo {
-            width: 4.2rem;
-            height: 4.2rem;
-            border-radius: 50%;
-            border: 2px solid rgba(162, 214, 86, 0.7);
+            width: 4.8rem;
+            height: 4.8rem;
+            border-radius: 1.1rem;
+            border: 1px solid rgba(183, 240, 127, 0.5);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #a2d656;
-            font-size: 2rem;
+            background: linear-gradient(160deg, rgba(14, 61, 34, 0.72), rgba(35, 120, 63, 0.48));
             margin-bottom: 1.1rem;
-            backdrop-filter: blur(1.5px);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16), 0 10px 24px rgba(4, 22, 12, 0.28);
+            backdrop-filter: blur(2px);
+        }
+        .hero-logo svg {
+            width: 2.6rem;
+            height: 2.6rem;
         }
         .hero-title {
             font-weight: 800;
@@ -112,17 +116,38 @@
             animation: fadeInUp 0.5s ease-out;
         }
         .brand-mark {
-            width: 3.4rem;
-            height: 3.4rem;
+            width: 4.2rem;
+            height: 4.2rem;
             margin: 0 auto 0.8rem;
-            border-radius: 0.9rem;
-            background: linear-gradient(145deg, #e6f4ea, #f4fbf6);
-            border: 1px solid #d1ead8;
-            color: #2e7d32;
+            border-radius: 1.1rem;
+            background: linear-gradient(145deg, #edf8ef, #f8fcf9);
+            border: 1px solid #cde6d2;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.7rem;
+            box-shadow: 0 6px 18px rgba(46, 125, 50, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+        }
+        .brand-mark svg {
+            width: 2.35rem;
+            height: 2.35rem;
+        }
+        .brand-seal {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.24rem 0.55rem;
+            border-radius: 999px;
+            border: 1px solid #d8e9dc;
+            background: #f8fcf9;
+            color: #4f6d54;
+            font-size: 0.72rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 0.7rem;
+        }
+        .brand-seal i {
+            color: #2e7d32;
         }
         .subtitle {
             color: #5d6f61;
@@ -217,7 +242,19 @@
             <section class="col-lg-6 d-flex align-items-center hero-pane">
                 <div class="hero-content text-white px-4 px-md-5 py-5">
                     <div class="hero-logo">
-                        <i class="bi bi-flower3"></i>
+                            <svg viewBox="0 0 64 64" aria-hidden="true">
+                                <defs>
+                                    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#d9f8a5"/>
+                                        <stop offset="100%" stop-color="#97dc5e"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M32 6l17 6v14c0 13-7.5 24.1-17 30-9.5-5.9-17-17-17-30V12z" fill="none" stroke="url(#shieldGrad)" stroke-width="2.6" stroke-linejoin="round"/>
+                                <path d="M32 43.5c7.4-3.8 11.2-11 11.2-19.4v-7.8L32 12.3 20.8 16.3v7.8c0 8.4 3.8 15.6 11.2 19.4z" fill="rgba(173,234,112,0.22)"/>
+                                <path d="M32 38.4V20.5" stroke="#c9f69a" stroke-width="2.4" stroke-linecap="round"/>
+                                <path d="M32 31.5c-5.2 0-9.4-3.8-10.1-8.8 5.2 0 9.4 3.8 10.1 8.8z" fill="#b7f07f"/>
+                                <path d="M32 31.5c5.2 0 9.4-3.8 10.1-8.8-5.2 0-9.4 3.8-10.1 8.8z" fill="#9be665"/>
+                            </svg>
                     </div>
                     <h1 class="display-6 hero-title">Bienvenido a<br>Trazabilidad Agronómica</h1>
                     <p class="hero-subtitle fs-6">
@@ -244,8 +281,24 @@
                 <div class="card login-card">
                     <div class="card-body p-4 p-lg-5">
                         <div class="text-center mb-4">
+                            <div class="brand-seal">
+                                <i class="bi bi-patch-check-fill"></i>
+                                Plataforma oficial
+                            </div>
                             <div class="brand-mark">
-                                <i class="bi bi-leaf"></i>
+                                <svg viewBox="0 0 64 64" aria-hidden="true">
+                                    <defs>
+                                        <linearGradient id="logoGradA" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#1f6d2c"/>
+                                            <stop offset="100%" stop-color="#4ba747"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <circle cx="32" cy="32" r="23" fill="#f3fbf4" stroke="#d4ebd9" stroke-width="2"/>
+                                    <path d="M32 47V22" stroke="url(#logoGradA)" stroke-width="2.8" stroke-linecap="round"/>
+                                    <path d="M32 34c-7.3 0-13.2-5.3-14.2-12.3 7.3 0 13.2 5.3 14.2 12.3z" fill="url(#logoGradA)"/>
+                                    <path d="M32 34c7.3 0 13.2-5.3 14.2-12.3-7.3 0-13.2 5.3-14.2 12.3z" fill="#72bf58"/>
+                                    <path d="M23.5 43.5h17" stroke="#bddfbf" stroke-width="2.2" stroke-linecap="round"/>
+                                </svg>
                             </div>
                             <h1 class="h3 mb-1 fw-bold">Iniciar sesión</h1>
                             <p class="subtitle mb-0">Accede a tu cuenta para continuar</p>
