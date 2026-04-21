@@ -32,7 +32,12 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('productores.index'));
+        $user = $request->user();
+        $home = $user && $user->esAdmin()
+            ? route('productores.index')
+            : route('productor.dashboard');
+
+        return redirect()->intended($home);
     }
 
     public function logout(Request $request): RedirectResponse

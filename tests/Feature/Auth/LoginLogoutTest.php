@@ -13,7 +13,7 @@ class LoginLogoutTest extends TestCase
 
     public function test_login_correcto_permite_ingresar(): void
     {
-        $user = User::factory()->create([
+        $user = User::factory()->admin()->create([
             'email' => 'admin@example.com',
             'password' => Hash::make('Secret123!'),
         ]);
