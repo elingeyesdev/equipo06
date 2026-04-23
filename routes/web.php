@@ -59,6 +59,14 @@ Route::middleware('auth')->group(function () {
             'productos' => 'producto',
         ]);
 
+        Route::post('productos/{producto}/simular-alerta', [ProductoController::class, 'simularAlerta'])
+            ->name('productos.simular-alerta');
+
+        Route::patch('notifications/{notification}/mark-as-read', function ($notificationId) {
+            auth()->user()->notifications()->find($notificationId)?->markAsRead();
+            return back();
+        })->name('notifications.markAsRead');
+
         Route::get('/eventos-produccion', [EventoProduccionController::class, 'index'])->name('eventos-produccion.index');
         Route::get('/eventos-produccion/create', [EventoProduccionController::class, 'create'])->name('eventos-produccion.create');
         Route::post('/eventos-produccion', [EventoProduccionController::class, 'store'])->name('eventos-produccion.store');

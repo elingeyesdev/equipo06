@@ -24,6 +24,7 @@
     @stack('styles')
 </head>
 @php($navUser = auth()->user())
+@php($notificacionesPendientes = $navUser ? $navUser->unreadNotifications()->where('type', 'App\Notifications\ComenzarCultivoNotification')->count() : 0)
 <body class="{{ $navUser && $navUser->esProductor() ? 'app-shell-productor' : 'app-shell-admin' }}">
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm {{ $navUser && $navUser->esProductor() ? 'navbar-app-productor' : 'navbar-app-admin' }}">
         <div class="container">
@@ -37,6 +38,11 @@
                     <span class="badge rounded-pill bg-white nav-role-badge ms-lg-1 {{ $navUser->esAdmin() ? 'text-success' : 'text-body' }}">
                         {{ $navUser->esAdmin() ? 'Administrador' : 'Productor' }}
                     </span>
+                    @if($notificacionesPendientes > 0)
+                        <span class="badge rounded-pill bg-danger ms-2" title="Alertas pendientes">
+                            <i class="bi bi-bell"></i> {{ $notificacionesPendientes }}
+                        </span>
+                    @endif
                 @endif
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Menú">

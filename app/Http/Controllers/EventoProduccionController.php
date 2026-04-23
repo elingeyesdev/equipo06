@@ -16,6 +16,17 @@ class EventoProduccionController extends Controller
         $enProceso = EventoProduccion::contarEnProcesoEfectivo();
         $pendientes = EventoProduccion::contarPendientesEfectivo();
 
+        $notificacionesPendientes = auth()->user()->unreadNotifications()
+            ->where('type', 'App\Notifications\ComenzarCultivoNotification')
+            ->count();
+
+        $notificacionesConfirmadas = auth()->user()->notifications()
+            ->where('type', 'App\Notifications\ComenzarCultivoNotification')
+            ->whereNotNull('read_at')
+            ->where('read_at', '>=', now()->subDays(7)) // Recientes
+            ->latest('read_at')
+            ->get();
+
         $eventosPorEtapa = collect(['siembra', 'cultivo', 'cosecha'])->mapWithKeys(function (string $etapa) {
             return [
                 $etapa => EventoProduccion::query()
@@ -44,6 +55,8 @@ class EventoProduccionController extends Controller
             'completados',
             'enProceso',
             'pendientes',
+            'notificacionesPendientes',
+            'notificacionesConfirmadas',
             'eventosPorEtapa',
             'timelineEventos'
         ));
@@ -72,7 +85,17 @@ class EventoProduccionController extends Controller
     {
         $validated = $this->validatedEvento($request);
 
-        EventoProduccion::create($validated);
+        $evento = EventoProduccion::create($validated);
+
+        // Si es un evento de siembra, marcar notificaciones relacionadas como leídas
+        if ($validated['etapa'] === 'siembra') {
+            auth()->user()->unreadNotifications()
+                ->where('type', 'App\Notifications\ComenzarCultivoNotification')
+                ->where('data->producto_id', $validated['producto_id'])
+                ->each(function ($notification) {
+                    $notification->markAsRead();
+                });
+        }
 
         return redirect()
             ->route('eventos-produccion.index')

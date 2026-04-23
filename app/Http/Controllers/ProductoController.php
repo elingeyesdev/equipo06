@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Producer;
 use App\Models\Producto;
+use App\Models\User;
+use App\Notifications\ComenzarCultivoNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 
 class ProductoController extends Controller
@@ -120,5 +123,25 @@ class ProductoController extends Controller
         return redirect()
             ->route('productos.index')
             ->with('status', 'Producto eliminado correctamente.');
+    }
+
+    public function simularAlerta(Producto $producto)
+    {
+        // Solo permitir si el usuario es productor
+        if (!auth()->user()->esProductor()) {
+            abort(403, 'Acceso denegado.');
+        }
+
+        // Enviar notificación al usuario correspondiente al productor
+        $productor = $producto->productor;
+        $user = User::where('email', $productor->email)->first();
+
+        if ($user) {
+            Notification::send($user, new ComenzarCultivoNotification($producto));
+        }
+
+        return redirect()
+            ->route('productos.index')
+            ->with('status', 'Alerta de comenzar cultivo enviada al productor.');
     }
 }

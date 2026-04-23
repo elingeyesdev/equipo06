@@ -118,6 +118,9 @@
                 <h1 class="h3 mb-2 d-flex align-items-center gap-2">
                     <span class="fs-2" aria-hidden="true">📋</span>
                     ENT_1.3 Gestión del proceso de producción
+                    @if($notificacionesPendientes > 0)
+                        <span class="badge bg-danger rounded-pill fs-6 px-2 py-1">{{ $notificacionesPendientes }}</span>
+                    @endif
                 </h1>
                 <p class="text-muted mb-0 lead fs-6">
                     Panel por etapas (siembra, cultivo, cosecha). Formato de producto: <strong>Producto - Productor</strong>.
@@ -295,6 +298,32 @@
                 </div>
             @else
                 <div class="timeline-vertical">
+                    @if($notificacionesPendientes > 0)
+                        <div class="timeline-item">
+                            <span class="timeline-dot bg-warning"></span>
+                            <div class="timeline-card shadow-sm p-3 border-warning">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <span class="fs-4 lh-1" aria-hidden="true">🚨</span>
+                                        <span class="badge rounded-pill bg-warning text-dark px-3 py-2">Alertas</span>
+                                    </div>
+                                    <div class="text-muted small d-flex align-items-center gap-1">
+                                        <i class="bi bi-bell"></i>
+                                        Pendientes
+                                    </div>
+                                </div>
+                                <div class="small text-secondary mb-2 fw-semibold">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>Tienes {{ $notificacionesPendientes }} alerta(s) para comenzar cultivo
+                                </div>
+                                <p class="small mb-2 text-body-secondary">Revisa tus notificaciones para ver los productos que requieren atención.</p>
+                                <div class="d-flex flex-column align-items-start gap-1">
+                                    <span class="badge rounded-pill bg-danger px-3 py-2">
+                                        Acción requerida
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                     @foreach ($timelineEventos as $ev)
                         <div class="timeline-item">
                             <span class="timeline-dot" style="--tl-accent: {{ $ev->colorEtapaHex() }}"></span>
@@ -322,6 +351,32 @@
                                     @if ($ev->estadoEsAutomaticoEnProceso())
                                         <span class="small text-muted"><i class="bi bi-clock me-1"></i>En proceso por hora programada</span>
                                     @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                    @foreach ($notificacionesConfirmadas as $notif)
+                        <div class="timeline-item">
+                            <span class="timeline-dot bg-success"></span>
+                            <div class="timeline-card shadow-sm p-3 border-success">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <span class="fs-4 lh-1" aria-hidden="true">✅</span>
+                                        <span class="badge rounded-pill bg-success px-3 py-2">Confirmado</span>
+                                    </div>
+                                    <div class="text-muted small d-flex align-items-center gap-1">
+                                        <i class="bi bi-calendar3"></i>
+                                        {{ $notif->read_at->format('d/m/Y') }}
+                                    </div>
+                                </div>
+                                <div class="small text-secondary mb-2 fw-semibold">
+                                    <i class="bi bi-check-circle me-1"></i>Pedido cumplido: {{ $notif->data['mensaje'] ?? 'Producto' }}
+                                </div>
+                                <p class="small mb-2 text-body-secondary">Se registró el evento de siembra correspondiente.</p>
+                                <div class="d-flex flex-column align-items-start gap-1">
+                                    <span class="badge rounded-pill bg-success px-3 py-2">
+                                        Completado
+                                    </span>
                                 </div>
                             </div>
                         </div>

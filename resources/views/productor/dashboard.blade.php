@@ -90,6 +90,41 @@
         </div>
     </div>
 
+    @if($notificaciones->isNotEmpty())
+        <div class="row g-3 mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0 border-start border-4 border-warning">
+                    <div class="card-body p-4">
+                        <h2 class="h6 text-uppercase text-muted mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-bell text-warning"></i> Alertas y confirmaciones
+                        </h2>
+                        @foreach($notificaciones as $notif)
+                            <div class="alert {{ $notif->read_at ? 'alert-success' : 'alert-warning' }} border-0 d-flex align-items-start gap-3 mb-3">
+                                <i class="bi {{ $notif->read_at ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill' }} fs-4 mt-1"></i>
+                                <div class="flex-grow-1">
+                                    <strong>{{ $notif->read_at ? 'Confirmado' : 'Pendiente' }}: Comenzar cultivo</strong> del producto: {{ $notif->data['mensaje'] ?? 'Producto' }}
+                                    @if($notif->read_at)
+                                        <div class="small text-muted mt-1">Confirmado el {{ $notif->read_at->format('d/m/Y H:i') }}</div>
+                                    @endif
+                                    <div class="mt-2">
+                                        <a href="{{ route('productos.show', $notif->data['producto_id']) }}" class="btn btn-sm {{ $notif->read_at ? 'btn-success' : 'btn-warning' }}">Ver producto</a>
+                                        @if(!$notif->read_at)
+                                            <form action="{{ route('notifications.markAsRead', $notif->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary">Marcar como leída</button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="row g-3">
         <div class="col-lg-7">
             <div class="card shadow-sm border-0 border-start border-4 border-success">

@@ -142,6 +142,14 @@
                                 <td class="text-end pe-4">
                                     <a href="{{ route('productos.show', $producto) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Ver</a>
                                     <a href="{{ route('productos.edit', $producto) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Editar</a>
+                                    @if(auth()->user()->esProductor())
+                                        <form action="{{ route('productos.simular-alerta', $producto) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-warning rounded-pill px-3" onclick="return confirm('¿Enviar alerta de comenzar cultivo?')">
+                                                Simular Alerta
+                                            </button>
+                                        </form>
+                                    @endif
                                     <form action="{{ route('productos.destroy', $producto) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
